@@ -1,0 +1,864 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sairam Mashetty | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a;
+      }
+      .text-gradient { background-clip: text; -webkit-background-clip: text; color: transparent; }
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #0f172a; }
+      ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #4facfe, #a18cd1); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #00f2fe, #667eea); }
+      @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      .animate-gradient { background-size: 200% 200%; animation: gradient-animation 15s ease infinite; }
+      @keyframes typing { from { width: 0 } to { width: 100% } }
+      @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00d4ff; } }
+      .typing-effect { overflow: hidden; border-right: .15em solid #00d4ff; white-space: nowrap; margin: 0 auto; letter-spacing: .1em; animation: typing 3.5s steps(30, end), blink-caret .75s step-end infinite; }
+      @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+      .animate-float { animation: float 6s ease-in-out infinite; }
+      .animate-float-delay-1 { animation-delay: 1s; }
+      .animate-float-delay-2 { animation-delay: 2s; }
+      .animate-float-delay-3 { animation-delay: 3s; }
+      @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }
+      .animate-pulse-glow { animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+      .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+      .fade-in { opacity: 0; transition: opacity 1s ease-in; }
+      .fade-in.visible { opacity: 1; }
+    </style>
+    <!-- React and Babel for in-browser JSX transformation -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      // All JS/React code goes here. Babel will transpile it.
+
+      // --- HOOKS ---
+      const { useState, useEffect, useRef } = React;
+
+      const useOnScreen = (options) => {
+        const ref = useRef(null);
+        const [isIntersecting, setIntersecting] = useState(false);
+
+        useEffect(() => {
+          const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+              setIntersecting(true);
+            }
+          }, options);
+
+          const currentRef = ref.current;
+          if (currentRef) {
+            observer.observe(currentRef);
+          }
+
+          return () => {
+            if (currentRef) {
+              observer.unobserve(currentRef);
+            }
+          };
+        }, []);
+
+        return [ref, isIntersecting];
+      };
+
+      // --- CONSTANTS ---
+      const loadData = (key, defaultValue) => {
+        try {
+          const savedData = localStorage.getItem(key);
+          if (savedData) {
+            return JSON.parse(savedData);
+          }
+        } catch (error) {
+          console.error(`Error loading ${key} from localStorage`, error);
+        }
+        return defaultValue;
+      };
+
+      const personalInfo = loadData('personalInfo', {
+        name: 'Sairam Mashetty',
+        title: 'Associate Claims',
+        summary: `An experienced Claims Associate with a dedication to efficiently managing and processing insurance claims. Skilled in navigating complex claims systems and maintaining precise records, I am committed to ongoing learning and staying abreast of industry regulations. I am eager to leverage my expertise to help the team achieve its objectives and drive success.`,
+        email: 'sairammashetty@gmail.com',
+        phone: '+91 9381094860',
+        location: 'Hyderabad, Telangana, India.',
+        linkedin: 'https://www.linkedin.com/in/sairam-mashetty',
+        profileImageUrl: 'https://i.imgur.com/62GgIIL.png',
+      });
+
+      const educationData = loadData('educationData', {
+          degree: 'Bachelor of Commerce (Computers)',
+          institution: 'Sri Vijaya Sai Degree College, Telangana University',
+          duration: '2018 - 2021',
+          gpa: '8.6'
+      });
+      
+      const navLinks = [
+        { name: 'About', href: '#about' },
+        { name: 'Experience', href: '#experience' },
+        { name: 'Skills', href: '#skills' },
+        { name: 'Awards', href: '#awards' },
+        { name: 'Contact', href: '#contact' },
+      ];
+
+      const sections = loadData('sectionsConfig', [
+          { id: 'about', title: 'About', visible: true },
+          { id: 'experience', title: 'Experience', visible: true },
+          { id: 'skills', title: 'Skills', visible: true },
+          { id: 'awards', title: 'Awards', visible: true },
+          { id: 'projects', title: 'Projects', visible: false },
+          { id: 'certifications', title: 'Certifications', visible: false },
+          { id: 'articles', title: 'Articles', visible: true },
+          { id: 'contact', title: 'Contact', visible: true },
+      ]);
+      
+      const experienceData = loadData('experienceData', [
+        {
+          date: '09/2022 - Present',
+          title: 'Associate Claims (Accumulators)',
+          company: 'Carelon Global Solutions',
+          logoUrl: 'https://i.imgur.com/eQ7DNfR.png',
+          description: [
+            'Conducted thorough investigations into member enrollments to verify accuracy of details like names, DOB, and insurance types.',
+            'Identified and investigated claims lacking coverage, denying them with appropriate documentation to ensure only valid claims were processed.',
+            'Analyzed deductible and out-of-pocket buckets to identify and investigate discrepancies, including duplicate claims and invalid transactions.',
+            'Performed detailed statistical and supplemental adjustments to claims, correcting inaccuracies and ensuring precise claim processing.',
+            'Tracked patient healthcare expenses against deductibles and out-of-pocket maximums, adjusting over-applied claims.',
+            'Monitored insurance coverage limits to ensure patients utilized the maximum benefits available in their plans.',
+          ],
+        },
+      ]);
+      
+      const skillsData = loadData('skillsData', [
+        { name: 'Claims Processing', level: 95 },
+        { name: 'MS Office', level: 90 },
+        { name: 'Medical Terminology', level: 85 },
+        { name: 'Regulatory Compliance', level: 88 },
+        { name: 'Attention to Detail', level: 98 },
+        { name: 'Communication', level: 92 },
+        { name: 'Time Management', level: 90 },
+      ]);
+      
+      const awardsData = loadData('awardsData', [
+        { name: 'Impact Award', date: 'September 2024', description: 'Recognized with the Impact Award for consistently delivering outstanding performance and exceeding expectations.' },
+        { name: 'Impact Award', date: 'January 2024', description: 'Honored for exceptional contributions and a proactive approach to resolving complex claim discrepancies.' },
+        { name: 'Impact Award', date: 'March 2023', description: 'Awarded for meticulous investigation skills and a commitment to ensuring accuracy in claims processing.' },
+      ]);
+      
+      const articlesData = loadData('articlesData', [
+        { title: 'The Future of Claims Processing', description: 'An insight into how AI and automation are revolutionizing the insurance claims industry.', imageUrl: 'https://picsum.photos/seed/claims-future/600/400', category: 'Insurtech', link: '#' },
+        { title: 'Navigating Regulatory Changes in Healthcare', description: 'A breakdown of recent regulatory updates and their impact on claims associates.', imageUrl: 'https://picsum.photos/seed/healthcare-regs/600/400', category: 'Compliance', link: '#' },
+        { title: 'Data Accuracy: The Cornerstone of Insurance', description: 'Exploring the critical importance of data integrity in preventing claim denials and ensuring customer satisfaction.', imageUrl: 'https://picsum.photos/seed/data-accuracy/600/400', category: 'Best Practices', link: '#' }
+      ]);
+      
+      const projectsData = loadData('projectsData', []);
+      const certificationsData = loadData('certificationsData', []);
+
+      // --- ICONS ---
+      const LocationIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>);
+      const EmailIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>);
+      const PhoneIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.02.74-.25 1.02l-2.2 2.2z" /></svg>);
+      const LinkedInIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zm-11 6H5v9h3V9zm-1.5-2.25A1.75 1.75 0 0 0 5 8.5a1.75 1.75 0 0 0 3.5 0A1.75 1.75 0 0 0 6.5 6.75zM19 9h-2.83c.03-.22.03-.43.03-.65 0-2.3-1.87-4.18-4.17-4.18A4.18 4.18 0 0 0 8 8.35V9H5v9h3v-4.5c0-1.38.62-2.5 2.25-2.5S13 13.12 13 14.5V18h3v-5.04c0-2.23-1.2-3.96-3.03-3.96C11.33 9 10.02 10.3 10 11.4V12h3.17L13 18h3v-5c0-1.38.62-2.5 2.25-2.5S19 12.12 19 13.5V18h3v-9z" /></svg>);
+      const AwardIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"></polyline></svg>);
+
+      // --- COMPONENTS (in order of dependency) ---
+      const Header = () => {
+        const [scrolled, setScrolled] = useState(false);
+        const [activeSection, setActiveSection] = useState('');
+
+        useEffect(() => {
+          const handleScroll = () => {
+            setScrolled(window.scrollY > 10);
+            
+            const sections = document.querySelectorAll('section[id]');
+            let currentSection = '';
+            sections.forEach(section => {
+              const sectionTop = (section).offsetTop;
+              if (window.scrollY >= sectionTop - 100) {
+                currentSection = section.getAttribute('id') || '';
+              }
+            });
+            setActiveSection(currentSection);
+          };
+
+          window.addEventListener('scroll', handleScroll);
+          return () => window.removeEventListener('scroll', handleScroll);
+        }, []);
+
+        return (
+          <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-slate-900/50 backdrop-blur-lg shadow-2xl shadow-cyan-500/10' : 'bg-transparent'}`}>
+            <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+              <a href="#" className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">
+                {personalInfo.name.split(' ')[0][0]}{personalInfo.name.split(' ')[1][0]}
+              </a>
+              <ul className="hidden md:flex items-center space-x-8">
+                {navLinks.map((link) => (
+                  <li key={link.href}>
+                    <a href={link.href} className={`relative text-lg font-medium text-white/80 hover:text-white transition-colors duration-300 ${activeSection === link.href.substring(1) ? 'text-cyan-400' : ''}`}>
+                      {link.name}
+                      <span className={`absolute left-0 -bottom-1 w-full h-0.5 bg-cyan-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${activeSection === link.href.substring(1) ? 'scale-x-100' : 'scale-x-0'}`}></span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </header>
+        );
+      };
+
+      const Hero = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.3 });
+        const infoCards = [
+          { icon: <LocationIcon className="w-6 h-6 text-cyan-300"/>, text: personalInfo.location, delay: 1 },
+          { icon: <EmailIcon className="w-6 h-6 text-cyan-300"/>, text: personalInfo.email, delay: 2 },
+          { icon: <PhoneIcon className="w-6 h-6 text-cyan-300"/>, text: personalInfo.phone, delay: 3 },
+        ];
+        return (
+          <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-900">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900/50 animate-gradient"></div>
+            <div ref={ref} className="relative z-10 container mx-auto px-6 grid md:grid-cols-2 items-center gap-16">
+              <div className={`text-center md:text-left transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+                <span className="text-cyan-400 font-semibold text-lg">Hello, I'm</span>
+                <h1 className="text-5xl lg:text-7xl font-extrabold text-white my-3 typing-effect-container">
+                  <span className="typing-effect">{personalInfo.name}</span>
+                </h1>
+                <h2 className="text-2xl lg:text-3xl font-semibold bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient mb-8">
+                  {personalInfo.title}
+                </h2>
+                <div className="flex justify-center md:justify-start gap-4">
+                   <a href="#contact" className="text-white bg-gradient-to-r from-cyan-500 to-purple-600 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 transform hover:scale-105">
+                    Get In Touch
+                  </a>
+                  <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="text-white bg-transparent border-2 border-cyan-400 hover:bg-cyan-400/20 focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 flex items-center gap-2">
+                    <LinkedInIcon className="w-5 h-5"/> LinkedIn
+                  </a>
+                </div>
+              </div>
+              <div className="relative hidden md:flex justify-center items-center h-[500px]">
+                <div className="relative group animate-float">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full blur-lg opacity-60 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-glow"></div>
+                  <img src={personalInfo.profileImageUrl} alt="Sairam Mashetty" className="relative w-72 h-72 lg:w-80 lg:w-80 rounded-full object-cover border-4 border-slate-800" />
+                </div>
+                {infoCards.map(card => (
+                  <div key={card.text} className={`absolute flex items-center gap-3 p-3 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl animate-float animate-float-delay-${card.delay} ${card.delay === 1 ? 'top-10 left-0' : ''} ${card.delay === 2 ? 'bottom-20 -left-10' : ''} ${card.delay === 3 ? 'top-1/2 -right-10' : ''}`}>
+                    {card.icon}
+                    <span className="text-sm text-white font-medium whitespace-nowrap">{card.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+      
+      const QuickNav = () => {
+          const [ref, isVisible] = useOnScreen({ threshold: 0.1, rootMargin: '-100px' });
+          const visibleSections = sections.filter(s => s.visible);
+          const iconMap = {
+              about: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+              experience: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+              skills: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
+              projects: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>,
+              certifications: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>,
+              awards: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" /></svg>,
+              articles: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h2m0 0h2" /></svg>,
+              contact: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+          };
+          return(
+              <section ref={ref} className="py-16 bg-slate-900">
+                  <div className="container mx-auto px-6">
+                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                          {visibleSections.map((section, index) => {
+                              const Icon = iconMap[section.id];
+                              if (!Icon) return null;
+
+                              return (
+                                  <a href={`#${section.id}`} key={section.id} className={`flex flex-col items-center justify-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-slate-400 group hover:bg-slate-800 hover:text-white hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-1 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 100}ms` }}>
+                                      <Icon className="w-8 h-8 mb-2 transition-transform duration-300 group-hover:scale-110"/>
+                                      <span className="text-sm font-semibold capitalize">{section.title}</span>
+                                  </a>
+                              )
+                          })}
+                       </div>
+                  </div>
+              </section>
+          )
+      }
+
+      const About = () => {
+          const [ref, isVisible] = useOnScreen({ threshold: 0.3 });
+          return (
+            <section id="about" className="py-24 bg-slate-900">
+              <div className="container mx-auto px-6">
+                <div ref={ref} className={`transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+                    <h2 className="text-4xl font-extrabold text-center mb-4 text-white">
+                        About <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Me</span>
+                    </h2>
+                    <p className="max-w-3xl mx-auto text-center text-slate-400 text-lg mb-16">
+                        {personalInfo.summary}
+                    </p>
+                </div>
+                <div className="max-w-4xl mx-auto bg-slate-800/50 rounded-2xl p-8 md:p-12 shadow-2xl shadow-black/20 border border-slate-700">
+                    <div className="grid md:grid-cols-2 gap-8 items-center">
+                        <div ref={ref} className={`fade-in-up ${isVisible ? 'visible' : ''}`}>
+                            <h3 className="text-2xl font-bold text-white mb-4">Education</h3>
+                            <p className="text-lg font-semibold text-cyan-400">{educationData.degree}</p>
+                            <p className="text-slate-300">{educationData.institution}</p>
+                            <p className="text-slate-400 mt-2">{educationData.duration}</p>
+                            <p className="text-slate-400 mt-1">GPA: {educationData.gpa}</p>
+                        </div>
+                         <div ref={ref} className={`fade-in-up ${isVisible ? 'visible' : ''}`} style={{transitionDelay: '200ms'}}>
+                            <img src="https://picsum.photos/seed/education/500/300" alt="Education" className="rounded-lg shadow-lg" />
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </section>
+          );
+      };
+
+      const Experience = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
+        const ExperienceCard = ({ item, index, isVisible }) => {
+          return (
+            <div className="relative pl-12 md:pl-16 pb-12">
+              <div className="absolute left-0 top-1 w-px bg-slate-700 h-full"></div>
+              <div className="absolute left-[-9px] top-1 z-10">
+                <div className="w-5 h-5 rounded-full bg-slate-800 border-2 border-cyan-500"></div>
+              </div>
+              <div className={`transform transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`} style={{ transitionDelay: `${index * 150}ms` }}>
+                <div className="p-6 rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-700 shadow-2xl shadow-black/20 group hover:border-cyan-500/50">
+                  <div className="flex items-center mb-3">
+                    {item.logoUrl && (<img src={item.logoUrl} alt={`${item.company} logo`} className="w-8 h-8 rounded-full mr-3" />)}
+                    <div>
+                      <p className="text-sm text-cyan-400">{item.date}</p>
+                      <h3 className="font-bold text-white text-xl">{item.title}</h3>
+                    </div>
+                  </div>
+                  <h4 className="mb-4 font-semibold text-slate-300">{item.company}</h4>
+                  <ul className="list-disc list-inside space-y-2 text-slate-400 marker:text-cyan-400">
+                    {item.description.map((point, i) => <li key={i}>{point}</li>)}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          );
+        };
+        return (
+          <section id="experience" className="py-24 bg-slate-900">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Work <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Experience</span></h2>
+              <div ref={ref} className="relative max-w-3xl mx-auto">
+                {experienceData.map((item, index) => (
+                  <ExperienceCard key={index} item={item} index={index} isVisible={isVisible} />
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const Skills = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
+        const SkillCircle = ({ skill, isVisible }) => {
+          const [progress, setProgress] = useState(0);
+          const radius = 50;
+          const circumference = 2 * Math.PI * radius;
+          const offset = circumference - (progress / 100) * circumference;
+
+          useEffect(() => {
+            if (isVisible) {
+              const timer = setTimeout(() => setProgress(skill.level), 200);
+              return () => clearTimeout(timer);
+            }
+          }, [isVisible, skill.level]);
+
+          return (
+            <div className="flex flex-col items-center justify-center p-4">
+              <div className="relative w-32 h-32">
+                <svg className="w-full h-full" viewBox="0 0 120 120">
+                  <circle className="text-slate-700" strokeWidth="8" stroke="currentColor" fill="transparent" r={radius} cx="60" cy="60" />
+                  <circle className="text-cyan-400" strokeWidth="8" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" stroke="currentColor" fill="transparent" r={radius} cx="60" cy="60" style={{ transition: 'stroke-dashoffset 1.5s ease-out', transform: 'rotate(-90deg)', transformOrigin: 'center' }} />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">{progress}%</span>
+              </div>
+              <p className="mt-4 text-lg font-semibold text-slate-300">{skill.name}</p>
+            </div>
+          );
+        };
+        return (
+          <section id="skills" className="py-24 bg-slate-800/30">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Professional <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Skills</span></h2>
+              <div ref={ref} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-8 justify-center">
+                {skillsData.map((skill, index) => (<SkillCircle key={index} skill={skill} isVisible={isVisible} />))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const Awards = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
+        return (
+          <section id="awards" className="py-24 bg-slate-900">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Achievements & <span className="bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 text-gradient">Awards</span></h2>
+              <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+                {awardsData.map((award, index) => (
+                  <div key={index} className={`group fade-in-up ${isVisible ? 'visible' : ''}`} style={{ perspective: '1000px', transitionDelay: `${index * 200}ms` }}>
+                    <div className={`bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-2xl shadow-black/20 transition-all duration-500 hover:shadow-yellow-400/20 hover:-translate-y-2 hover:rotate-x-6 hover:-rotate-y-6`}>
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center transition-transform duration-500 group-hover:scale-110 mb-4">
+                          <AwardIcon className="w-10 h-10 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-white">{award.name}</h3>
+                          <p className="text-amber-300 font-semibold mt-1">{award.date}</p>
+                          <p className="text-slate-400 mt-3">{award.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const Articles = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
+        return (
+          <section id="articles" className="py-24 bg-slate-800/30">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Articles & <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Insights</span></h2>
+              <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {articlesData.map((article, index) => (
+                  <div key={index} className={`bg-slate-800/50 rounded-2xl overflow-hidden shadow-2xl shadow-black/20 border border-slate-700 group transition-all duration-500 hover:-translate-y-2 hover:shadow-purple-500/20 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
+                    <a href={article.link || '#'} target="_blank" rel="noopener noreferrer">
+                      <div className="overflow-hidden h-56"><img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" /></div>
+                      <div className="p-6">
+                        <p className="text-sm text-cyan-400 mb-2">{article.category}</p>
+                        <h3 className="text-xl font-bold text-white mb-3">{article.title}</h3>
+                        <p className="text-slate-400">{article.description}</p>
+                      </div>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+      
+      const Projects = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
+        if (!projectsData || projectsData.length === 0) {
+          return (
+             <section id="projects" className="py-24 bg-slate-900">
+              <div className="container mx-auto px-6 text-center">
+                  <h2 className="text-4xl font-extrabold text-center mb-4 text-white">Featured <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Projects</span></h2>
+                  <p className="text-slate-400 text-lg">No projects have been added yet. Check back soon!</p>
+              </div>
+            </section>
+          );
+        }
+        return (
+          <section id="projects" className="py-24 bg-slate-900">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Featured <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Projects</span></h2>
+              <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {projectsData.map((project, index) => (
+                  <div key={index} className={`bg-slate-800/50 rounded-2xl overflow-hidden shadow-2xl shadow-black/20 border border-slate-700 group transition-all duration-500 hover:-translate-y-2 hover:shadow-purple-500/20 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
+                      <div className="overflow-hidden h-56 relative">
+                        <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                              {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="py-2 px-4 bg-cyan-500 rounded-md text-white font-semibold hover:bg-cyan-400 transition-colors">Live View</a>}
+                              {project.sourceUrl && <a href={project.sourceUrl} target="_blank" rel="noopener noreferrer" className="py-2 px-4 bg-slate-700 rounded-md text-white font-semibold hover:bg-slate-600 transition-colors">Source Code</a>}
+                         </div>
+                      </div>
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
+                        <p className="text-slate-400 mb-4">{project.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.tags.map(tag => (<span key={tag} className="text-xs font-semibold bg-slate-700 text-cyan-300 py-1 px-3 rounded-full">{tag}</span>))}
+                        </div>
+                      </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+      
+      const Certifications = () => {
+        const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
+        if (!certificationsData || certificationsData.length === 0) {
+          return (
+             <section id="certifications" className="py-24 bg-slate-800/30">
+              <div className="container mx-auto px-6 text-center">
+                  <h2 className="text-4xl font-extrabold text-center mb-4 text-white">Licenses & <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Certifications</span></h2>
+                  <p className="text-slate-400 text-lg">No certifications have been added yet. Check back soon!</p>
+              </div>
+            </section>
+          );
+        }
+        return (
+          <section id="certifications" className="py-24 bg-slate-800/30">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Licenses & <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Certifications</span></h2>
+              <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {certificationsData.map((cert, index) => (
+                  <div key={index} className={`bg-slate-800/50 p-6 rounded-2xl shadow-2xl shadow-black/20 border border-slate-700 group transition-all duration-500 hover:-translate-y-2 hover:shadow-cyan-500/20 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
+                      <div className="flex items-start gap-4">
+                          {cert.imageUrl && <img src={cert.imageUrl} alt={cert.name} className="w-16 h-16 object-contain"/>}
+                          <div className="flex-1">
+                              <h3 className="text-lg font-bold text-white">{cert.name}</h3>
+                              <p className="text-slate-300 font-semibold">{cert.issuer}</p>
+                              <p className="text-sm text-slate-400 mt-1">Issued: {cert.date}</p>
+                              {cert.credentialUrl && (<a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors mt-2 inline-block">Show Credential &rarr;</a>)}
+                          </div>
+                      </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const Contact = () => {
+          const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
+          const [status, setStatus] = useState('');
+
+          const handleSubmit = (e) => {
+              e.preventDefault();
+              setStatus('Thank you for your message!');
+              const form = e.target;
+              form.reset();
+              setTimeout(() => setStatus(''), 5000);
+          };
+
+        return (
+          <section id="contact" className="py-24 bg-slate-800/30">
+            <div className="container mx-auto px-6">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-white">Contact <span className="bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Me</span></h2>
+              <div ref={ref} className={`max-w-5xl mx-auto grid md:grid-cols-2 gap-12 bg-slate-900/50 p-8 md:p-12 rounded-2xl shadow-2xl border border-slate-700 fade-in-up ${isVisible ? 'visible' : ''}`}>
+                <div className="flex flex-col justify-center space-y-8">
+                  <h3 className="text-3xl font-bold text-white">Let's Connect</h3>
+                  <p className="text-slate-400">I'm open to new opportunities and collaborations. Feel free to reach out via email or phone.</p>
+                  <div className="space-y-4">
+                    <a href={`mailto:${personalInfo.email}`} className="flex items-center space-x-4 group"><EmailIcon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"/><span className="text-slate-300 group-hover:text-white transition-colors">{personalInfo.email}</span></a>
+                     <a href={`tel:${personalInfo.phone}`} className="flex items-center space-x-4 group"><PhoneIcon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"/><span className="text-slate-300 group-hover:text-white transition-colors">{personalInfo.phone}</span></a>
+                     <div className="flex items-center space-x-4"><LocationIcon className="w-6 h-6 text-cyan-400"/><span className="text-slate-300">{personalInfo.location}</span></div>
+                  </div>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="relative z-0 w-full mb-6 group">
+                      <input type="text" name="floating_name" id="floating_name" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-500 peer" placeholder=" " required />
+                      <label htmlFor="floating_name" className="peer-focus:font-medium absolute text-sm text-slate-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-cyan-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Full Name</label>
+                  </div>
+                   <div className="relative z-0 w-full mb-6 group">
+                      <input type="email" name="floating_email" id="floating_email" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-500 peer" placeholder=" " required />
+                      <label htmlFor="floating_email" className="peer-focus:font-medium absolute text-sm text-slate-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-cyan-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
+                  </div>
+                   <div className="relative z-0 w-full mb-6 group">
+                      <textarea name="floating_message" id="floating_message" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-500 peer min-h-[100px]" placeholder=" " required></textarea>
+                      <label htmlFor="floating_message" className="peer-focus:font-medium absolute text-sm text-slate-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-cyan-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Your Message</label>
+                  </div>
+                  <button type="submit" className="text-white bg-gradient-to-r from-cyan-500 to-purple-600 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm w-full sm:w-auto px-8 py-3 text-center transition-all duration-300 transform hover:scale-105">Send Message</button>
+                  {status && <p className="mt-4 text-green-400">{status}</p>}
+                </form>
+              </div>
+            </div>
+          </section>
+        );
+      };
+      
+      const Footer = () => {
+        return (
+          <footer className="bg-slate-900 border-t border-slate-800">
+            <div className="container mx-auto px-6 py-8">
+              <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                  <p className="text-slate-500 mb-4 md:mb-0">&copy; {new Date().getFullYear()} {personalInfo.name}. All Rights Reserved.</p>
+                  <div className="flex space-x-6">
+                  <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-all duration-300 hover:shadow-[0_0_15px_#00d4ff] rounded-full p-2"><LinkedInIcon className="w-6 h-6" /></a>
+                  <a href={`mailto:${personalInfo.email}`} className="text-slate-500 hover:text-cyan-400 transition-all duration-300 hover:shadow-[0_0_15px_#00d4ff] rounded-full p-2"><EmailIcon className="w-6 h-6" /></a>
+                  </div>
+              </div>
+              <div className="text-center mt-6">
+                  <a href="#admin" className="text-xs text-slate-700 hover:text-slate-500 transition-colors">Admin Panel</a>
+              </div>
+            </div>
+          </footer>
+        );
+      };
+
+      const ScrollToTop = () => {
+        const [isVisible, setIsVisible] = useState(false);
+        useEffect(() => {
+          const toggleVisibility = () => setIsVisible(window.pageYOffset > 300);
+          window.addEventListener('scroll', toggleVisibility);
+          return () => window.removeEventListener('scroll', toggleVisibility);
+        }, []);
+        const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+        return (
+          <>
+            {isVisible && (
+              <button onClick={scrollToTop} className="fixed bottom-8 right-8 z-50 p-3 rounded-full bg-cyan-500 text-white shadow-lg transition-opacity duration-300 hover:bg-cyan-400 focus:outline-none animate-pulse-glow" aria-label="Go to top">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+              </button>
+            )}
+          </>
+        );
+      };
+      
+      const Admin = () => {
+          // --- AUTHENTICATION ---
+          const [password, setPassword] = useState('');
+          const [isLoggedIn, setIsLoggedIn] = useState(false);
+          const [error, setError] = useState('');
+          const handleLogin = (e) => {
+              e.preventDefault();
+              if (password === 'admin123') { setIsLoggedIn(true); setError(''); } 
+              else { setError('Invalid password'); }
+          };
+          const handleLogout = () => { setIsLoggedIn(false); setPassword(''); window.location.hash = ''; };
+
+          // --- DATA MANAGEMENT ---
+          const [activeTab, setActiveTab] = useState('sections');
+          const [personalInfo, setPersonalInfo] = useState(loadData('personalInfo', {}));
+          const [educationData, setEducationData] = useState(loadData('educationData', {}));
+          const [experienceData, setExperienceData] = useState(loadData('experienceData', []));
+          const [skillsData, setSkillsData] = useState(loadData('skillsData', []));
+          const [awardsData, setAwardsData] = useState(loadData('awardsData', []));
+          const [articlesData, setArticlesData] = useState(loadData('articlesData', []));
+          const [projectsData, setProjectsData] = useState(loadData('projectsData', []));
+          const [certificationsData, setCertificationsData] = useState(loadData('certificationsData', []));
+          const [sections, setSections] = useState(loadData('sectionsConfig', []));
+
+          const saveData = (key, data) => {
+              localStorage.setItem(key, JSON.stringify(data));
+              alert(`${key.replace('Data', '').replace('Config','')} saved successfully!`);
+              if (key === 'sectionsConfig') { window.dispatchEvent(new CustomEvent('sectionsUpdated')); }
+          };
+          const handleItemChange = (setter, index, field, value, isDescription = false) => {
+              setter((prev) => {
+                  const newList = [...prev];
+                  if (isDescription) { newList[index][field] = value.split('\n'); } 
+                  else { newList[index][field] = value; }
+                  return newList;
+              });
+          };
+          const handleAddItem = (setter, newItem) => setter((prev) => [...prev, newItem]);
+          const handleRemoveItem = (setter, index) => setter((prev) => prev.filter((_, i) => i !== index));
+          
+          const renderInput = (label, value, onChange, type = "text") => (
+              <div className="mb-4">
+                  <label className="block text-slate-300 text-sm font-bold mb-2">{label}</label>
+                  <input type={type} value={value} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-cyan-500"/>
+              </div>
+          );
+          
+          const renderTextarea = (label, value, onChange) => (
+              <div className="mb-4">
+                  <label className="block text-slate-300 text-sm font-bold mb-2">{label}</label>
+                  <textarea value={value} onChange={onChange} rows={5} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-cyan-500 min-h-[120px]"/>
+              </div>
+          );
+
+          if (!isLoggedIn) {
+              return (
+                  <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+                      <div className="max-w-sm w-full bg-slate-800 p-8 rounded-2xl shadow-2xl shadow-black/30 border border-slate-700">
+                          <h2 className="text-3xl font-bold text-center text-white mb-8">Admin Login</h2>
+                          <form onSubmit={handleLogin}>
+                              <div className="mb-6">
+                                  <label className="block text-slate-400 text-sm font-bold mb-2" htmlFor="password">Password</label>
+                                  <input className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-cyan-500" id="password" type="password" placeholder="************" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                              </div>
+                              {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+                              <button className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-all duration-300" type="submit">Sign In</button>
+                          </form>
+                      </div>
+                  </div>
+              );
+          }
+          
+          const tabs = [
+            { id: 'sections', label: 'Manage Sections' }, { id: 'personal', label: 'Personal Info' }, { id: 'experience', label: 'Experience' }, { id: 'skills', label: 'Skills' }, { id: 'awards', label: 'Awards' }, { id: 'projects', label: 'Projects' }, { id: 'certifications', label: 'Certifications' }, { id: 'articles', label: 'Articles' },
+          ];
+
+          return (
+              <div className="min-h-screen bg-slate-900 text-white flex">
+                  <aside className="w-64 bg-slate-800 p-4 border-r border-slate-700 flex flex-col">
+                      <h1 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-cyan-400 to-purple-500 text-gradient">Admin Panel</h1>
+                      <nav className="flex flex-col space-y-2">{tabs.map(tab => (<button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`p-2 rounded-md text-left transition-colors ${activeTab === tab.id ? 'bg-cyan-500/20 text-cyan-300' : 'hover:bg-slate-700'}`}>{tab.label}</button>))}</nav>
+                      <div className="mt-auto">
+                           <button onClick={() => window.location.hash = ''} className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded mb-2">View Portfolio</button>
+                          <button onClick={handleLogout} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</button>
+                      </div>
+                  </aside>
+                  <main className="flex-grow p-8 overflow-y-auto">
+                    {/* Render Tab Content based on activeTab */}
+                    {activeTab === 'sections' && (
+                        <div>
+                            <h2 className="text-3xl font-bold mb-6">Manage Sections</h2>
+                            <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                                <p className="text-slate-400 mb-4">Toggle the visibility of sections on your main portfolio page.</p>
+                                {sections.map((section, index) => (
+                                    <div key={section.id} className="flex items-center justify-between p-3 border-b border-slate-700 last:border-b-0">
+                                        <span className="text-lg font-semibold">{section.title}</span>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked={section.visible} onChange={() => {
+                                                const newSections = [...sections];
+                                                newSections[index].visible = !newSections[index].visible;
+                                                setSections(newSections);
+                                            }} className="sr-only peer" />
+                                            <div className="w-11 h-6 bg-slate-600 rounded-full peer peer-focus:ring-4 peer-focus:ring-cyan-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => saveData('sectionsConfig', sections)} className="mt-6 bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded">Save Section Visibility</button>
+                        </div>
+                    )}
+                    
+                    {activeTab === 'personal' && (
+                        <div>
+                            <h2 className="text-3xl font-bold mb-6">Personal & Education Info</h2>
+                            <div className="grid md:grid-cols-2 gap-8">
+                              <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                                  <h3 className="text-xl font-semibold mb-4 text-cyan-400">Personal Details</h3>
+                                  {renderInput("Name", personalInfo.name, e => setPersonalInfo({...personalInfo, name: e.target.value}))}
+                                  {renderInput("Title", personalInfo.title, e => setPersonalInfo({...personalInfo, title: e.target.value}))}
+                                  {renderInput("Email", personalInfo.email, e => setPersonalInfo({...personalInfo, email: e.target.value}), "email")}
+                                  {renderInput("Phone", personalInfo.phone, e => setPersonalInfo({...personalInfo, phone: e.target.value}), "tel")}
+                                  {renderInput("Location", personalInfo.location, e => setPersonalInfo({...personalInfo, location: e.target.value}))}
+                                  {renderInput("LinkedIn URL", personalInfo.linkedin, e => setPersonalInfo({...personalInfo, linkedin: e.target.value}), "url")}
+                                  {renderInput("Profile Image URL", personalInfo.profileImageUrl, e => setPersonalInfo({...personalInfo, profileImageUrl: e.target.value}), "url")}
+                                  {renderTextarea("Summary", personalInfo.summary, e => setPersonalInfo({...personalInfo, summary: e.target.value}))}
+                                  <button onClick={() => saveData('personalInfo', personalInfo)} className="mt-4 bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded">Save Personal Info</button>
+                              </div>
+                              <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                                <h3 className="text-xl font-semibold mb-4 text-cyan-400">Education</h3>
+                                {renderInput("Degree", educationData.degree, e => setEducationData({...educationData, degree: e.target.value}))}
+                                {renderInput("Institution", educationData.institution, e => setEducationData({...educationData, institution: e.target.value}))}
+                                {renderInput("Duration", educationData.duration, e => setEducationData({...educationData, duration: e.target.value}))}
+                                {renderInput("GPA", educationData.gpa, e => setEducationData({...educationData, gpa: e.target.value}))}
+                                <button onClick={() => saveData('educationData', educationData)} className="mt-4 bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded">Save Education</button>
+                              </div>
+                            </div>
+                        </div>
+                    )}
+
+                     {activeTab === 'experience' && (<div><h2 className="text-3xl font-bold mb-6">Experience</h2> {experienceData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Date", item.date, e => handleItemChange(setExperienceData, index, 'date', e.target.value))}{renderInput("Title", item.title, e => handleItemChange(setExperienceData, index, 'title', e.target.value))}{renderInput("Company", item.company, e => handleItemChange(setExperienceData, index, 'company', e.target.value))}{renderInput("Company Logo URL", item.logoUrl || '', e => handleItemChange(setExperienceData, index, 'logoUrl', e.target.value), "url")}{renderTextarea("Description (one per line)", item.description.join('\n'), e => handleItemChange(setExperienceData, index, 'description', e.target.value, true))}<button onClick={() => handleRemoveItem(setExperienceData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
+                     {activeTab === 'skills' && (<div><h2 className="text-3xl font-bold mb-6">Skills</h2> {skillsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700 flex items-end gap-4"><div className="flex-grow">{renderInput("Skill Name", item.name, e => handleItemChange(setSkillsData, index, 'name', e.target.value))}</div><div>{renderInput("Level (0-100)", String(item.level), e => handleItemChange(setSkillsData, index, 'level', Number(e.target.value)), "number")}</div><button onClick={() => handleRemoveItem(setSkillsData, index)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-fit">Remove</button></div>))}</div>)}
+                     {activeTab === 'awards' && (<div><h2 className="text-3xl font-bold mb-6">Awards</h2> {awardsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Award Name", item.name, e => handleItemChange(setAwardsData, index, 'name', e.target.value))}{renderInput("Date", item.date, e => handleItemChange(setAwardsData, index, 'date', e.target.value))}{renderTextarea("Description", item.description, e => handleItemChange(setAwardsData, index, 'description', e.target.value))}<button onClick={() => handleRemoveItem(setAwardsData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
+                     {activeTab === 'projects' && (<div><h2 className="text-3xl font-bold mb-6">Projects</h2> {projectsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Title", item.title, e => handleItemChange(setProjectsData, index, 'title', e.target.value))}{renderInput("Image URL", item.imageUrl, e => handleItemChange(setProjectsData, index, 'imageUrl', e.target.value), "url")}{renderTextarea("Description", item.description, e => handleItemChange(setProjectsData, index, 'description', e.target.value))}{renderInput("Tags (comma separated)", item.tags.join(','), e => handleItemChange(setProjectsData, index, 'tags', e.target.value.split(',')))}{renderInput("Live URL", item.liveUrl || '', e => handleItemChange(setProjectsData, index, 'liveUrl', e.target.value), "url")}{renderInput("Source URL", item.sourceUrl || '', e => handleItemChange(setProjectsData, index, 'sourceUrl', e.target.value), "url")}<button onClick={() => handleRemoveItem(setProjectsData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
+                     {activeTab === 'certifications' && (<div><h2 className="text-3xl font-bold mb-6">Certifications</h2> {certificationsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Name", item.name, e => handleItemChange(setCertificationsData, index, 'name', e.target.value))}{renderInput("Issuer", item.issuer, e => handleItemChange(setCertificationsData, index, 'issuer', e.target.value))}{renderInput("Date", item.date, e => handleItemChange(setCertificationsData, index, 'date', e.target.value))}{renderInput("Image URL", item.imageUrl || '', e => handleItemChange(setCertificationsData, index, 'imageUrl', e.target.value), "url")}{renderInput("Credential URL", item.credentialUrl || '', e => handleItemChange(setCertificationsData, index, 'credentialUrl', e.target.value), "url")}<button onClick={() => handleRemoveItem(setCertificationsData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
+                     {activeTab === 'articles' && (<div><h2 className="text-3xl font-bold mb-6">Articles</h2> {articlesData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Title", item.title, e => handleItemChange(setArticlesData, index, 'title', e.target.value))}{renderInput("Category", item.category, e => handleItemChange(setArticlesData, index, 'category', e.target.value))}{renderInput("Image URL", item.imageUrl, e => handleItemChange(setArticlesData, index, 'imageUrl', e.target.value), "url")}{renderTextarea("Description", item.description, e => handleItemChange(setArticlesData, index, 'description', e.target.value))}<button onClick={() => handleRemoveItem(setArticlesData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
+                    
+                     {activeTab !== 'personal' && activeTab !== 'sections' && (
+                        <div className="flex gap-4 mt-6">
+                            <button onClick={() => {
+                              const actions = {
+                                'experience': () => handleAddItem(setExperienceData, { date: '', title: '', company: '', description: [] }),
+                                'skills': () => handleAddItem(setSkillsData, { name: '', level: 80 }),
+                                'awards': () => handleAddItem(setAwardsData, { name: '', date: '', description: '' }),
+                                'projects': () => handleAddItem(setProjectsData, { title: '', description: '', imageUrl: '', tags: [] }),
+                                'certifications': () => handleAddItem(setCertificationsData, { name: '', issuer: '', date: '' }),
+                                'articles': () => handleAddItem(setArticlesData, { title: '', description: '', imageUrl: '', category: '' }),
+                              };
+                              actions[activeTab]();
+                            }} className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded">+ Add Item</button>
+                            <button onClick={() => saveData(`${activeTab}Data`, {
+                                'experience': experienceData, 'skills': skillsData, 'awards': awardsData, 'projects': projectsData, 'certifications': certificationsData, 'articles': articlesData
+                            }[activeTab])} className="bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded">Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</button>
+                        </div>
+                     )}
+
+                  </main>
+              </div>
+          );
+      };
+      
+      const App = () => {
+        const [isAdminView, setIsAdminView] = useState(window.location.hash === '#admin');
+        const [visibleSections, setVisibleSections] = useState(sections.filter(s => s.visible));
+
+        useEffect(() => {
+          const handleHashChange = () => setIsAdminView(window.location.hash === '#admin');
+          const handleSectionsUpdate = () => {
+              const updatedSectionsRaw = localStorage.getItem('sectionsConfig');
+              if (updatedSectionsRaw) {
+                  const updatedSections = JSON.parse(updatedSectionsRaw);
+                  setVisibleSections(updatedSections.filter(s => s.visible));
+              }
+          };
+          window.addEventListener('hashchange', handleHashChange, false);
+          window.addEventListener('sectionsUpdated', handleSectionsUpdate);
+          handleSectionsUpdate();
+          return () => {
+            window.removeEventListener('hashchange', handleHashChange, false);
+            window.removeEventListener('sectionsUpdated', handleSectionsUpdate);
+          };
+        }, []);
+
+        if (isAdminView) {
+          return <Admin />;
+        }
+        
+        const sectionComponentMap = {
+          about: <About />, experience: <Experience />, skills: <Skills />, awards: <Awards />, articles: <Articles />, projects: <Projects />, certifications: <Certifications />, contact: <Contact />,
+        };
+
+        return (
+          <div className="bg-slate-900 text-slate-400">
+            <Header />
+            <main>
+              <Hero />
+              <QuickNav />
+              {visibleSections.map(section => (
+                <React.Fragment key={section.id}>
+                    {sectionComponentMap[section.id]}
+                </React.Fragment>
+              ))}
+            </main>
+            <Footer />
+            <ScrollToTop />
+          </div>
+        );
+      };
+
+      // --- RENDER APP ---
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
