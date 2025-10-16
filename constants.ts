@@ -15,7 +15,13 @@ const loadData = (key: string, defaultValue: any) => {
   try {
     const savedData = localStorage.getItem(key);
     if (savedData) {
-      return JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      // Safeguard: If sectionsConfig is an empty array, it's a corrupted state.
+      // Fall back to the default to ensure the admin panel is always usable.
+      if (key === 'sectionsConfig' && Array.isArray(parsedData) && parsedData.length === 0) {
+        return defaultValue;
+      }
+      return parsedData;
     }
   } catch (error) {
     console.error(`Error loading ${key} from localStorage`, error);

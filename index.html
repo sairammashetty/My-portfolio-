@@ -90,7 +90,13 @@
         try {
           const savedData = localStorage.getItem(key);
           if (savedData) {
-            return JSON.parse(savedData);
+            const parsedData = JSON.parse(savedData);
+            // BUG FIX: If sectionsConfig is an empty array, it's a corrupted state.
+            // Fall back to the default to ensure the admin panel is always usable.
+            if (key === 'sectionsConfig' && Array.isArray(parsedData) && parsedData.length === 0) {
+              return defaultValue;
+            }
+            return parsedData;
           }
         } catch (error) {
           console.error(`Error loading ${key} from localStorage`, error);
@@ -98,7 +104,7 @@
         return defaultValue;
       };
 
-      const personalInfo = loadData('personalInfo', {
+      const personalInfoDefault = {
         name: 'Sairam Mashetty',
         title: 'Associate Claims',
         summary: `An experienced Claims Associate with a dedication to efficiently managing and processing insurance claims. Skilled in navigating complex claims systems and maintaining precise records, I am committed to ongoing learning and staying abreast of industry regulations. I am eager to leverage my expertise to help the team achieve its objectives and drive success.`,
@@ -107,16 +113,16 @@
         location: 'Hyderabad, Telangana, India.',
         linkedin: 'https://www.linkedin.com/in/sairam-mashetty',
         profileImageUrl: 'https://i.imgur.com/62GgIIL.png',
-      });
+      };
 
-      const educationData = loadData('educationData', {
+      const educationDataDefault = {
           degree: 'Bachelor of Commerce (Computers)',
           institution: 'Sri Vijaya Sai Degree College, Telangana University',
           duration: '2018 - 2021',
           gpa: '8.6'
-      });
+      };
       
-      const navLinks = [
+      const navLinksDefault = [
         { name: 'About', href: '#about' },
         { name: 'Experience', href: '#experience' },
         { name: 'Skills', href: '#skills' },
@@ -124,7 +130,7 @@
         { name: 'Contact', href: '#contact' },
       ];
 
-      const sections = loadData('sectionsConfig', [
+      const sectionsDefault = [
           { id: 'about', title: 'About', visible: true },
           { id: 'experience', title: 'Experience', visible: true },
           { id: 'skills', title: 'Skills', visible: true },
@@ -133,9 +139,9 @@
           { id: 'certifications', title: 'Certifications', visible: false },
           { id: 'articles', title: 'Articles', visible: true },
           { id: 'contact', title: 'Contact', visible: true },
-      ]);
+      ];
       
-      const experienceData = loadData('experienceData', [
+      const experienceDataDefault = [
         {
           date: '09/2022 - Present',
           title: 'Associate Claims (Accumulators)',
@@ -150,9 +156,9 @@
             'Monitored insurance coverage limits to ensure patients utilized the maximum benefits available in their plans.',
           ],
         },
-      ]);
+      ];
       
-      const skillsData = loadData('skillsData', [
+      const skillsDataDefault = [
         { name: 'Claims Processing', level: 95 },
         { name: 'MS Office', level: 90 },
         { name: 'Medical Terminology', level: 85 },
@@ -160,22 +166,22 @@
         { name: 'Attention to Detail', level: 98 },
         { name: 'Communication', level: 92 },
         { name: 'Time Management', level: 90 },
-      ]);
+      ];
       
-      const awardsData = loadData('awardsData', [
+      const awardsDataDefault = [
         { name: 'Impact Award', date: 'September 2024', description: 'Recognized with the Impact Award for consistently delivering outstanding performance and exceeding expectations.' },
         { name: 'Impact Award', date: 'January 2024', description: 'Honored for exceptional contributions and a proactive approach to resolving complex claim discrepancies.' },
         { name: 'Impact Award', date: 'March 2023', description: 'Awarded for meticulous investigation skills and a commitment to ensuring accuracy in claims processing.' },
-      ]);
+      ];
       
-      const articlesData = loadData('articlesData', [
+      const articlesDataDefault = [
         { title: 'The Future of Claims Processing', description: 'An insight into how AI and automation are revolutionizing the insurance claims industry.', imageUrl: 'https://picsum.photos/seed/claims-future/600/400', category: 'Insurtech', link: '#' },
         { title: 'Navigating Regulatory Changes in Healthcare', description: 'A breakdown of recent regulatory updates and their impact on claims associates.', imageUrl: 'https://picsum.photos/seed/healthcare-regs/600/400', category: 'Compliance', link: '#' },
         { title: 'Data Accuracy: The Cornerstone of Insurance', description: 'Exploring the critical importance of data integrity in preventing claim denials and ensuring customer satisfaction.', imageUrl: 'https://picsum.photos/seed/data-accuracy/600/400', category: 'Best Practices', link: '#' }
-      ]);
+      ];
       
-      const projectsData = loadData('projectsData', []);
-      const certificationsData = loadData('certificationsData', []);
+      const projectsDataDefault = [];
+      const certificationsDataDefault = [];
 
       // --- ICONS ---
       const LocationIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>);
@@ -185,7 +191,7 @@
       const AwardIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"></polyline></svg>);
 
       // --- COMPONENTS (in order of dependency) ---
-      const Header = () => {
+      const Header = ({ personalInfo, navLinks }) => {
         const [scrolled, setScrolled] = useState(false);
         const [activeSection, setActiveSection] = useState('');
 
@@ -229,7 +235,7 @@
         );
       };
 
-      const Hero = () => {
+      const Hero = ({ personalInfo }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.3 });
         const infoCards = [
           { icon: <LocationIcon className="w-6 h-6 text-cyan-300"/>, text: personalInfo.location, delay: 1 },
@@ -274,7 +280,7 @@
         );
       };
       
-      const QuickNav = () => {
+      const QuickNav = ({ sections }) => {
           const [ref, isVisible] = useOnScreen({ threshold: 0.1, rootMargin: '-100px' });
           const visibleSections = sections.filter(s => s.visible);
           const iconMap = {
@@ -308,7 +314,7 @@
           )
       }
 
-      const About = () => {
+      const About = ({ personalInfo, educationData }) => {
           const [ref, isVisible] = useOnScreen({ threshold: 0.3 });
           return (
             <section id="about" className="py-24 bg-slate-900">
@@ -340,7 +346,7 @@
           );
       };
 
-      const Experience = () => {
+      const Experience = ({ experienceData }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
         const ExperienceCard = ({ item, index, isVisible }) => {
           return (
@@ -381,7 +387,7 @@
         );
       };
 
-      const Skills = () => {
+      const Skills = ({ skillsData }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
         const SkillCircle = ({ skill, isVisible }) => {
           const [progress, setProgress] = useState(0);
@@ -421,7 +427,7 @@
         );
       };
 
-      const Awards = () => {
+      const Awards = ({ awardsData }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
         return (
           <section id="awards" className="py-24 bg-slate-900">
@@ -450,7 +456,7 @@
         );
       };
 
-      const Articles = () => {
+      const Articles = ({ articlesData }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
         return (
           <section id="articles" className="py-24 bg-slate-800/30">
@@ -475,7 +481,7 @@
         );
       };
       
-      const Projects = () => {
+      const Projects = ({ projectsData }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
         if (!projectsData || projectsData.length === 0) {
           return (
@@ -516,7 +522,7 @@
         );
       };
       
-      const Certifications = () => {
+      const Certifications = ({ certificationsData }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
         if (!certificationsData || certificationsData.length === 0) {
           return (
@@ -552,7 +558,7 @@
         );
       };
 
-      const Contact = () => {
+      const Contact = ({ personalInfo }) => {
           const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
           const [status, setStatus] = useState('');
 
@@ -600,7 +606,7 @@
         );
       };
       
-      const Footer = () => {
+      const Footer = ({ personalInfo }) => {
         return (
           <footer className="bg-slate-900 border-t border-slate-800">
             <div className="container mx-auto px-6 py-8">
@@ -652,15 +658,15 @@
 
           // --- DATA MANAGEMENT ---
           const [activeTab, setActiveTab] = useState('sections');
-          const [personalInfo, setPersonalInfo] = useState(loadData('personalInfo', {}));
-          const [educationData, setEducationData] = useState(loadData('educationData', {}));
-          const [experienceData, setExperienceData] = useState(loadData('experienceData', []));
-          const [skillsData, setSkillsData] = useState(loadData('skillsData', []));
-          const [awardsData, setAwardsData] = useState(loadData('awardsData', []));
-          const [articlesData, setArticlesData] = useState(loadData('articlesData', []));
-          const [projectsData, setProjectsData] = useState(loadData('projectsData', []));
-          const [certificationsData, setCertificationsData] = useState(loadData('certificationsData', []));
-          const [sections, setSections] = useState(loadData('sectionsConfig', []));
+          const [personalInfo, setPersonalInfo] = useState(() => loadData('personalInfo', personalInfoDefault));
+          const [educationData, setEducationData] = useState(() => loadData('educationData', educationDataDefault));
+          const [experienceData, setExperienceData] = useState(() => loadData('experienceData', experienceDataDefault));
+          const [skillsData, setSkillsData] = useState(() => loadData('skillsData', skillsDataDefault));
+          const [awardsData, setAwardsData] = useState(() => loadData('awardsData', awardsDataDefault));
+          const [articlesData, setArticlesData] = useState(() => loadData('articlesData', articlesDataDefault));
+          const [projectsData, setProjectsData] = useState(() => loadData('projectsData', projectsDataDefault));
+          const [certificationsData, setCertificationsData] = useState(() => loadData('certificationsData', certificationsDataDefault));
+          const [sections, setSections] = useState(() => loadData('sectionsConfig', sectionsDefault));
 
           const saveData = (key, data) => {
               localStorage.setItem(key, JSON.stringify(data));
@@ -670,8 +676,10 @@
           const handleItemChange = (setter, index, field, value, isDescription = false) => {
               setter((prev) => {
                   const newList = [...prev];
-                  if (isDescription) { newList[index][field] = value.split('\n'); } 
-                  else { newList[index][field] = value; }
+                  const currentItem = { ...newList[index] };
+                  if (isDescription) { currentItem[field] = value.split('\n'); } 
+                  else { currentItem[field] = value; }
+                  newList[index] = currentItem;
                   return newList;
               });
           };
@@ -725,15 +733,15 @@
                       </div>
                   </aside>
                   <main className="flex-grow p-8 overflow-y-auto">
-                    {/* Render Tab Content based on activeTab */}
                     {activeTab === 'sections' && (
                         <div>
-                            <h2 className="text-3xl font-bold mb-6">Manage Sections</h2>
+                            <h2 className="text-3xl font-bold mb-2 text-white">Manage Section Visibility</h2>
+                            <p className="text-slate-400 mb-6">Use these toggles to show or hide sections on your live portfolio.</p>
                             <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
-                                <p className="text-slate-400 mb-4">Toggle the visibility of sections on your main portfolio page.</p>
+                                <p className="text-slate-300 mb-4 font-semibold">Turn a section "On" to make it visible.</p>
                                 {sections.map((section, index) => (
                                     <div key={section.id} className="flex items-center justify-between p-3 border-b border-slate-700 last:border-b-0">
-                                        <span className="text-lg font-semibold">{section.title}</span>
+                                        <span className="text-lg font-semibold capitalize">{section.title}</span>
                                         <label className="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" checked={section.visible} onChange={() => {
                                                 const newSections = [...sections];
@@ -751,7 +759,7 @@
                     
                     {activeTab === 'personal' && (
                         <div>
-                            <h2 className="text-3xl font-bold mb-6">Personal & Education Info</h2>
+                            <h2 className="text-3xl font-bold mb-6">Edit Personal & Education Info</h2>
                             <div className="grid md:grid-cols-2 gap-8">
                               <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
                                   <h3 className="text-xl font-semibold mb-4 text-cyan-400">Personal Details</h3>
@@ -776,33 +784,42 @@
                             </div>
                         </div>
                     )}
-
-                     {activeTab === 'experience' && (<div><h2 className="text-3xl font-bold mb-6">Experience</h2> {experienceData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Date", item.date, e => handleItemChange(setExperienceData, index, 'date', e.target.value))}{renderInput("Title", item.title, e => handleItemChange(setExperienceData, index, 'title', e.target.value))}{renderInput("Company", item.company, e => handleItemChange(setExperienceData, index, 'company', e.target.value))}{renderInput("Company Logo URL", item.logoUrl || '', e => handleItemChange(setExperienceData, index, 'logoUrl', e.target.value), "url")}{renderTextarea("Description (one per line)", item.description.join('\n'), e => handleItemChange(setExperienceData, index, 'description', e.target.value, true))}<button onClick={() => handleRemoveItem(setExperienceData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
-                     {activeTab === 'skills' && (<div><h2 className="text-3xl font-bold mb-6">Skills</h2> {skillsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700 flex items-end gap-4"><div className="flex-grow">{renderInput("Skill Name", item.name, e => handleItemChange(setSkillsData, index, 'name', e.target.value))}</div><div>{renderInput("Level (0-100)", String(item.level), e => handleItemChange(setSkillsData, index, 'level', Number(e.target.value)), "number")}</div><button onClick={() => handleRemoveItem(setSkillsData, index)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-fit">Remove</button></div>))}</div>)}
-                     {activeTab === 'awards' && (<div><h2 className="text-3xl font-bold mb-6">Awards</h2> {awardsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Award Name", item.name, e => handleItemChange(setAwardsData, index, 'name', e.target.value))}{renderInput("Date", item.date, e => handleItemChange(setAwardsData, index, 'date', e.target.value))}{renderTextarea("Description", item.description, e => handleItemChange(setAwardsData, index, 'description', e.target.value))}<button onClick={() => handleRemoveItem(setAwardsData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
-                     {activeTab === 'projects' && (<div><h2 className="text-3xl font-bold mb-6">Projects</h2> {projectsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Title", item.title, e => handleItemChange(setProjectsData, index, 'title', e.target.value))}{renderInput("Image URL", item.imageUrl, e => handleItemChange(setProjectsData, index, 'imageUrl', e.target.value), "url")}{renderTextarea("Description", item.description, e => handleItemChange(setProjectsData, index, 'description', e.target.value))}{renderInput("Tags (comma separated)", item.tags.join(','), e => handleItemChange(setProjectsData, index, 'tags', e.target.value.split(',')))}{renderInput("Live URL", item.liveUrl || '', e => handleItemChange(setProjectsData, index, 'liveUrl', e.target.value), "url")}{renderInput("Source URL", item.sourceUrl || '', e => handleItemChange(setProjectsData, index, 'sourceUrl', e.target.value), "url")}<button onClick={() => handleRemoveItem(setProjectsData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
-                     {activeTab === 'certifications' && (<div><h2 className="text-3xl font-bold mb-6">Certifications</h2> {certificationsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Name", item.name, e => handleItemChange(setCertificationsData, index, 'name', e.target.value))}{renderInput("Issuer", item.issuer, e => handleItemChange(setCertificationsData, index, 'issuer', e.target.value))}{renderInput("Date", item.date, e => handleItemChange(setCertificationsData, index, 'date', e.target.value))}{renderInput("Image URL", item.imageUrl || '', e => handleItemChange(setCertificationsData, index, 'imageUrl', e.target.value), "url")}{renderInput("Credential URL", item.credentialUrl || '', e => handleItemChange(setCertificationsData, index, 'credentialUrl', e.target.value), "url")}<button onClick={() => handleRemoveItem(setCertificationsData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
-                     {activeTab === 'articles' && (<div><h2 className="text-3xl font-bold mb-6">Articles</h2> {articlesData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Title", item.title, e => handleItemChange(setArticlesData, index, 'title', e.target.value))}{renderInput("Category", item.category, e => handleItemChange(setArticlesData, index, 'category', e.target.value))}{renderInput("Image URL", item.imageUrl, e => handleItemChange(setArticlesData, index, 'imageUrl', e.target.value), "url")}{renderTextarea("Description", item.description, e => handleItemChange(setArticlesData, index, 'description', e.target.value))}<button onClick={() => handleRemoveItem(setArticlesData, index)} className="text-red-500 hover:text-red-400">Remove</button></div>))}</div>)}
                     
-                     {activeTab !== 'personal' && activeTab !== 'sections' && (
-                        <div className="flex gap-4 mt-6">
+                    {['experience', 'skills', 'awards', 'projects', 'certifications', 'articles'].includes(activeTab) && (
+                      <div>
+                          <h2 className="text-3xl font-bold mb-6 capitalize">Edit {activeTab}</h2>
+                          {
+                            {
+                              'experience': experienceData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Date", item.date, e => handleItemChange(setExperienceData, index, 'date', e.target.value))}{renderInput("Title", item.title, e => handleItemChange(setExperienceData, index, 'title', e.target.value))}{renderInput("Company", item.company, e => handleItemChange(setExperienceData, index, 'company', e.target.value))}{renderInput("Company Logo URL", item.logoUrl || '', e => handleItemChange(setExperienceData, index, 'logoUrl', e.target.value), "url")}{renderTextarea("Description (one per line)", Array.isArray(item.description) ? item.description.join('\n') : '', e => handleItemChange(setExperienceData, index, 'description', e.target.value, true))}<button onClick={() => handleRemoveItem(setExperienceData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Experience</button></div>)),
+                              'skills': skillsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700 flex items-end gap-4"><div className="flex-grow">{renderInput("Skill Name", item.name, e => handleItemChange(setSkillsData, index, 'name', e.target.value))}</div><div>{renderInput("Level (0-100)", String(item.level), e => handleItemChange(setSkillsData, index, 'level', Number(e.target.value)), "number")}</div><button onClick={() => handleRemoveItem(setSkillsData, index)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-fit">Remove</button></div>)),
+                              'awards': awardsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Award Name", item.name, e => handleItemChange(setAwardsData, index, 'name', e.target.value))}{renderInput("Date", item.date, e => handleItemChange(setAwardsData, index, 'date', e.target.value))}{renderTextarea("Description", item.description, e => handleItemChange(setAwardsData, index, 'description', e.target.value))}<button onClick={() => handleRemoveItem(setAwardsData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Award</button></div>)),
+                              'projects': projectsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Title", item.title, e => handleItemChange(setProjectsData, index, 'title', e.target.value))}{renderInput("Image URL", item.imageUrl, e => handleItemChange(setProjectsData, index, 'imageUrl', e.target.value), "url")}{renderTextarea("Description", item.description, e => handleItemChange(setProjectsData, index, 'description', e.target.value))}{renderInput("Tags (comma separated)", Array.isArray(item.tags) ? item.tags.join(',') : '', e => handleItemChange(setProjectsData, index, 'tags', e.target.value.split(',')))}{renderInput("Live URL", item.liveUrl || '', e => handleItemChange(setProjectsData, index, 'liveUrl', e.target.value), "url")}{renderInput("Source URL", item.sourceUrl || '', e => handleItemChange(setProjectsData, index, 'sourceUrl', e.target.value), "url")}<button onClick={() => handleRemoveItem(setProjectsData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Project</button></div>)),
+                              'certifications': certificationsData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Name", item.name, e => handleItemChange(setCertificationsData, index, 'name', e.target.value))}{renderInput("Issuer", item.issuer, e => handleItemChange(setCertificationsData, index, 'issuer', e.target.value))}{renderInput("Date", item.date, e => handleItemChange(setCertificationsData, index, 'date', e.target.value))}{renderInput("Image URL", item.imageUrl || '', e => handleItemChange(setCertificationsData, index, 'imageUrl', e.target.value), "url")}{renderInput("Credential URL", item.credentialUrl || '', e => handleItemChange(setCertificationsData, index, 'credentialUrl', e.target.value), "url")}<button onClick={() => handleRemoveItem(setCertificationsData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Certification</button></div>)),
+                              'articles': articlesData.map((item, index) => (<div key={index} className="bg-slate-800 p-6 rounded-lg mb-4 border border-slate-700">{renderInput("Title", item.title, e => handleItemChange(setArticlesData, index, 'title', e.target.value))}{renderInput("Category", item.category, e => handleItemChange(setArticlesData, index, 'category', e.target.value))}{renderInput("Image URL", item.imageUrl, e => handleItemChange(setArticlesData, index, 'imageUrl', e.target.value), "url")}{renderTextarea("Description", item.description, e => handleItemChange(setArticlesData, index, 'description', e.target.value))}<button onClick={() => handleRemoveItem(setArticlesData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Article</button></div>))
+                            }[activeTab]
+                          }
+                          <div className="flex gap-4 mt-6">
                             <button onClick={() => {
                               const actions = {
-                                'experience': () => handleAddItem(setExperienceData, { date: '', title: '', company: '', description: [] }),
+                                'experience': () => handleAddItem(setExperienceData, { date: '', title: '', company: '', logoUrl: '', description: [] }),
                                 'skills': () => handleAddItem(setSkillsData, { name: '', level: 80 }),
                                 'awards': () => handleAddItem(setAwardsData, { name: '', date: '', description: '' }),
-                                'projects': () => handleAddItem(setProjectsData, { title: '', description: '', imageUrl: '', tags: [] }),
-                                'certifications': () => handleAddItem(setCertificationsData, { name: '', issuer: '', date: '' }),
-                                'articles': () => handleAddItem(setArticlesData, { title: '', description: '', imageUrl: '', category: '' }),
+                                'projects': () => handleAddItem(setProjectsData, { title: '', description: '', imageUrl: '', tags: [], liveUrl: '', sourceUrl: '' }),
+                                'certifications': () => handleAddItem(setCertificationsData, { name: '', issuer: '', date: '', imageUrl: '', credentialUrl: '' }),
+                                'articles': () => handleAddItem(setArticlesData, { title: '', description: '', imageUrl: '', category: '', link: '#' }),
                               };
                               actions[activeTab]();
                             }} className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded">+ Add Item</button>
-                            <button onClick={() => saveData(`${activeTab}Data`, {
-                                'experience': experienceData, 'skills': skillsData, 'awards': awardsData, 'projects': projectsData, 'certifications': certificationsData, 'articles': articlesData
-                            }[activeTab])} className="bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded">Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</button>
-                        </div>
-                     )}
-
+                            <button onClick={() => {
+                                const dataToSave = {
+                                    experience: experienceData, skills: skillsData, awards: awardsData, 
+                                    projects: projectsData, certifications: certificationsData, articles: articlesData
+                                }[activeTab];
+                                saveData(`${activeTab}Data`, dataToSave);
+                            }} className="bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded">Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</button>
+                          </div>
+                      </div>
+                    )}
                   </main>
               </div>
           );
@@ -810,23 +827,49 @@
       
       const App = () => {
         const [isAdminView, setIsAdminView] = useState(window.location.hash === '#admin');
-        const [visibleSections, setVisibleSections] = useState(sections.filter(s => s.visible));
+        const [appData, setAppData] = useState({
+            personalInfo: loadData('personalInfo', personalInfoDefault),
+            navLinks: navLinksDefault,
+            sections: loadData('sectionsConfig', sectionsDefault),
+            educationData: loadData('educationData', educationDataDefault),
+            experienceData: loadData('experienceData', experienceDataDefault),
+            skillsData: loadData('skillsData', skillsDataDefault),
+            awardsData: loadData('awardsData', awardsDataDefault),
+            articlesData: loadData('articlesData', articlesDataDefault),
+            projectsData: loadData('projectsData', projectsDataDefault),
+            certificationsData: loadData('certificationsData', certificationsDataDefault),
+        });
+
+        const visibleSections = appData.sections.filter(s => s.visible);
 
         useEffect(() => {
           const handleHashChange = () => setIsAdminView(window.location.hash === '#admin');
-          const handleSectionsUpdate = () => {
-              const updatedSectionsRaw = localStorage.getItem('sectionsConfig');
-              if (updatedSectionsRaw) {
-                  const updatedSections = JSON.parse(updatedSectionsRaw);
-                  setVisibleSections(updatedSections.filter(s => s.visible));
-              }
+          const handleStorageChange = () => {
+             // This re-reads all data from localStorage when any of it changes
+             setAppData({
+                personalInfo: loadData('personalInfo', personalInfoDefault),
+                navLinks: navLinksDefault,
+                sections: loadData('sectionsConfig', sectionsDefault),
+                educationData: loadData('educationData', educationDataDefault),
+                experienceData: loadData('experienceData', experienceDataDefault),
+                skillsData: loadData('skillsData', skillsDataDefault),
+                awardsData: loadData('awardsData', awardsDataDefault),
+                articlesData: loadData('articlesData', articlesDataDefault),
+                projectsData: loadData('projectsData', projectsDataDefault),
+                certificationsData: loadData('certificationsData', certificationsDataDefault),
+            });
           };
+
           window.addEventListener('hashchange', handleHashChange, false);
-          window.addEventListener('sectionsUpdated', handleSectionsUpdate);
-          handleSectionsUpdate();
+          // Listen for our custom event from the admin panel
+          window.addEventListener('sectionsUpdated', handleStorageChange);
+          // Also listen for general storage changes (e.g., from another tab)
+          window.addEventListener('storage', handleStorageChange);
+
           return () => {
             window.removeEventListener('hashchange', handleHashChange, false);
-            window.removeEventListener('sectionsUpdated', handleSectionsUpdate);
+            window.removeEventListener('sectionsUpdated', handleStorageChange);
+            window.removeEventListener('storage', handleStorageChange);
           };
         }, []);
 
@@ -835,22 +878,29 @@
         }
         
         const sectionComponentMap = {
-          about: <About />, experience: <Experience />, skills: <Skills />, awards: <Awards />, articles: <Articles />, projects: <Projects />, certifications: <Certifications />, contact: <Contact />,
+          about: <About personalInfo={appData.personalInfo} educationData={appData.educationData} />,
+          experience: <Experience experienceData={appData.experienceData} />,
+          skills: <Skills skillsData={appData.skillsData} />,
+          awards: <Awards awardsData={appData.awardsData} />,
+          articles: <Articles articlesData={appData.articlesData} />,
+          projects: <Projects projectsData={appData.projectsData} />,
+          certifications: <Certifications certificationsData={appData.certificationsData} />,
+          contact: <Contact personalInfo={appData.personalInfo} />,
         };
 
         return (
           <div className="bg-slate-900 text-slate-400">
-            <Header />
+            <Header personalInfo={appData.personalInfo} navLinks={appData.navLinks} />
             <main>
-              <Hero />
-              <QuickNav />
+              <Hero personalInfo={appData.personalInfo} />
+              <QuickNav sections={appData.sections} />
               {visibleSections.map(section => (
                 <React.Fragment key={section.id}>
                     {sectionComponentMap[section.id]}
                 </React.Fragment>
               ))}
             </main>
-            <Footer />
+            <Footer personalInfo={appData.personalInfo} />
             <ScrollToTop />
           </div>
         );

@@ -68,7 +68,7 @@ const Admin: React.FC = () => {
     const saveData = (key: DataKeys, data: any) => {
         try {
             localStorage.setItem(key, JSON.stringify(data));
-            alert(`${key.replace('Config', '')} saved successfully!`);
+            alert(`${key.replace('Data', '').replace('Config','')} saved successfully!`);
             // Dispatch a custom event to notify the App component of changes
             if (key === 'sectionsConfig') {
                 window.dispatchEvent(new CustomEvent('sectionsUpdated'));
@@ -82,11 +82,13 @@ const Admin: React.FC = () => {
     const handleItemChange = (setter: Function, index: number, field: string, value: any, isDescription: boolean = false) => {
         setter((prev: any[]) => {
             const newList = [...prev];
+            const currentItem = { ...newList[index] };
             if (isDescription) {
-                 newList[index][field] = value.split('\n');
+                 currentItem[field] = value.split('\n');
             } else {
-                newList[index][field] = value;
+                currentItem[field] = value;
             }
+            newList[index] = currentItem;
             return newList;
         });
     };
@@ -172,12 +174,13 @@ const Admin: React.FC = () => {
             <main className="flex-grow p-8 overflow-y-auto">
                 {activeTab === 'sections' && (
                     <div>
-                        <h2 className="text-3xl font-bold mb-6">Manage Sections</h2>
+                        <h2 className="text-3xl font-bold mb-2 text-white">Manage Section Visibility</h2>
+                        <p className="text-slate-400 mb-6">Use these toggles to show or hide sections on your live portfolio.</p>
                         <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
-                            <p className="text-slate-400 mb-4">Toggle the visibility of sections on your main portfolio page.</p>
+                            <p className="text-slate-300 mb-4 font-semibold">Turn a section "On" to make it visible.</p>
                             {sections.map((section, index) => (
                                 <div key={section.id} className="flex items-center justify-between p-3 border-b border-slate-700 last:border-b-0">
-                                    <span className="text-lg font-semibold">{section.title}</span>
+                                    <span className="text-lg font-semibold capitalize">{section.title}</span>
                                     <label className="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" checked={section.visible} onChange={() => {
                                             const newSections = [...sections];
@@ -195,7 +198,7 @@ const Admin: React.FC = () => {
                 
                 {activeTab === 'personal' && (
                     <div>
-                        <h2 className="text-3xl font-bold mb-6">Personal & Education Info</h2>
+                        <h2 className="text-3xl font-bold mb-6">Edit Personal & Education Info</h2>
                         <div className="grid md:grid-cols-2 gap-8">
                           <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
                               <h3 className="text-xl font-semibold mb-4 text-cyan-400">Personal Details</h3>
@@ -223,7 +226,7 @@ const Admin: React.FC = () => {
                 
                 {['experience', 'skills', 'awards', 'projects', 'certifications', 'articles'].includes(activeTab) && (
                   <div>
-                      <h2 className="text-3xl font-bold mb-6 capitalize">{activeTab}</h2>
+                      <h2 className="text-3xl font-bold mb-6 capitalize">Edit {activeTab}</h2>
                       {
                         {
                           'experience': experienceData.map((item, index) => (
@@ -232,8 +235,8 @@ const Admin: React.FC = () => {
                                   {renderInput("Title", item.title, e => handleItemChange(setExperienceData, index, 'title', e.target.value))}
                                   {renderInput("Company", item.company, e => handleItemChange(setExperienceData, index, 'company', e.target.value))}
                                   {renderInput("Company Logo URL", item.logoUrl || '', e => handleItemChange(setExperienceData, index, 'logoUrl', e.target.value), "url")}
-                                  {renderTextarea("Description (one per line)", item.description.join('\n'), e => handleItemChange(setExperienceData, index, 'description', e.target.value, true))}
-                                  <button onClick={() => handleRemoveItem(setExperienceData, index)} className="text-red-500 hover:text-red-400">Remove</button>
+                                  {renderTextarea("Description (one per line)", Array.isArray(item.description) ? item.description.join('\n') : '', e => handleItemChange(setExperienceData, index, 'description', e.target.value, true))}
+                                  <button onClick={() => handleRemoveItem(setExperienceData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Experience</button>
                               </div>
                           )),
                            'skills': skillsData.map((item, index) => (
@@ -248,7 +251,7 @@ const Admin: React.FC = () => {
                                   {renderInput("Award Name", item.name, e => handleItemChange(setAwardsData, index, 'name', e.target.value))}
                                   {renderInput("Date", item.date, e => handleItemChange(setAwardsData, index, 'date', e.target.value))}
                                   {renderTextarea("Description", item.description, e => handleItemChange(setAwardsData, index, 'description', e.target.value))}
-                                  <button onClick={() => handleRemoveItem(setAwardsData, index)} className="text-red-500 hover:text-red-400">Remove</button>
+                                  <button onClick={() => handleRemoveItem(setAwardsData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Award</button>
                                </div>
                            )),
                            'projects': projectsData.map((item, index) => (
@@ -256,10 +259,10 @@ const Admin: React.FC = () => {
                                    {renderInput("Title", item.title, e => handleItemChange(setProjectsData, index, 'title', e.target.value))}
                                    {renderInput("Image URL", item.imageUrl, e => handleItemChange(setProjectsData, index, 'imageUrl', e.target.value), "url")}
                                    {renderTextarea("Description", item.description, e => handleItemChange(setProjectsData, index, 'description', e.target.value))}
-                                   {renderInput("Tags (comma separated)", item.tags.join(','), e => handleItemChange(setProjectsData, index, 'tags', e.target.value.split(',')))}
+                                   {renderInput("Tags (comma separated)", Array.isArray(item.tags) ? item.tags.join(',') : '', e => handleItemChange(setProjectsData, index, 'tags', e.target.value.split(',')))}
                                    {renderInput("Live URL", item.liveUrl || '', e => handleItemChange(setProjectsData, index, 'liveUrl', e.target.value), "url")}
                                    {renderInput("Source URL", item.sourceUrl || '', e => handleItemChange(setProjectsData, index, 'sourceUrl', e.target.value), "url")}
-                                   <button onClick={() => handleRemoveItem(setProjectsData, index)} className="text-red-500 hover:text-red-400">Remove</button>
+                                   <button onClick={() => handleRemoveItem(setProjectsData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Project</button>
                                </div>
                            )),
                           'certifications': certificationsData.map((item, index) => (
@@ -269,7 +272,7 @@ const Admin: React.FC = () => {
                                   {renderInput("Date", item.date, e => handleItemChange(setCertificationsData, index, 'date', e.target.value))}
                                   {renderInput("Image URL", item.imageUrl || '', e => handleItemChange(setCertificationsData, index, 'imageUrl', e.target.value), "url")}
                                   {renderInput("Credential URL", item.credentialUrl || '', e => handleItemChange(setCertificationsData, index, 'credentialUrl', e.target.value), "url")}
-                                  <button onClick={() => handleRemoveItem(setCertificationsData, index)} className="text-red-500 hover:text-red-400">Remove</button>
+                                  <button onClick={() => handleRemoveItem(setCertificationsData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Certification</button>
                                </div>
                           )),
                           'articles': articlesData.map((item, index) => (
@@ -278,7 +281,7 @@ const Admin: React.FC = () => {
                                   {renderInput("Category", item.category, e => handleItemChange(setArticlesData, index, 'category', e.target.value))}
                                   {renderInput("Image URL", item.imageUrl, e => handleItemChange(setArticlesData, index, 'imageUrl', e.target.value), "url")}
                                   {renderTextarea("Description", item.description, e => handleItemChange(setArticlesData, index, 'description', e.target.value))}
-                                  <button onClick={() => handleRemoveItem(setArticlesData, index)} className="text-red-500 hover:text-red-400">Remove</button>
+                                  <button onClick={() => handleRemoveItem(setArticlesData, index)} className="text-red-500 hover:text-red-400 mt-2">Remove Article</button>
                                </div>
                           ))
                         }[activeTab]
