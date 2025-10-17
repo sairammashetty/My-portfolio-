@@ -107,6 +107,9 @@
       // --- HOOKS ---
       const { useState, useEffect, useRef, useCallback } = React;
 
+      // Safely get API_KEY to prevent crash in environments where `process` is not defined
+      const API_KEY = typeof process !== 'undefined' ? process.env.API_KEY : null;
+
       const useOnScreen = (options) => {
         const ref = useRef(null);
         const [isIntersecting, setIntersecting] = useState(false);
@@ -523,14 +526,14 @@
         const handleSubmit = async (e) => {
           e.preventDefault();
           if (!formData.name || !formData.email || !formData.message) return;
-          if (!process.env.API_KEY) {
+          if (!API_KEY) {
               setFormStatus({ status: 'error', message: 'Contact form is currently disabled. Please reach out via email directly.' });
               return;
           }
           setFormStatus({ status: 'submitting', message: '' });
 
           try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: API_KEY });
             
             const sendEmailDeclaration = { name: 'send_email', parameters: { type: Type.OBJECT, properties: { to: { type: Type.STRING }, from_name: { type: Type.STRING }, from_email: { type: Type.STRING }, message: { type: Type.STRING } }, required: ['to', 'from_name', 'from_email', 'message'] } };
             const sendSmsDeclaration = { name: 'send_sms', parameters: { type: Type.OBJECT, properties: { to_phone: { type: Type.STRING }, from_name: { type: Type.STRING }, message: { type: Type.STRING } }, required: ['to_phone', 'from_name', 'message'] } };
@@ -640,8 +643,8 @@
         const messagesEndRef = useRef(null);
 
         useEffect(() => {
-          if (!process.env.API_KEY) { console.warn("API_KEY not set. AI Chatbot disabled."); return; }
-          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+          if (!API_KEY) { console.warn("API_KEY not set. AI Chatbot disabled."); return; }
+          const ai = new GoogleGenAI({ apiKey: API_KEY });
           const context = `Name: ${portfolioData.personalInfo.name}; Title: ${portfolioData.personalInfo.title}; Summary: ${portfolioData.personalInfo.summary}; Contact Email: ${portfolioData.personalInfo.email}; Contact Phone: ${portfolioData.personalInfo.phone}; LinkedIn: ${portfolioData.personalInfo.linkedin}; Experience: ${portfolioData.experienceData.map(job => `${job.title} at ${job.company}: ${job.description.join('. ')}`).join('; ')}; Skills: ${portfolioData.skillsData.map(skill => `${skill.name}`).join(', ')};`;
           const systemInstruction = `You are a professional AI assistant for Sairam Mashetty's portfolio. Answer questions about Sairam's background using ONLY the specific context provided. You are also an expert on the US healthcare and insurance claims industry and can answer general questions on these topics. Be friendly, concise, and professional. CONTEXT ABOUT SAIRAM: ${context}`;
           setChat(ai.chats.create({ model: 'gemini-2.5-flash', config: { systemInstruction } }));
@@ -665,7 +668,7 @@
           } finally { setIsLoading(false); }
         };
 
-        if (!process.env.API_KEY) return null;
+        if (!API_KEY) return null;
 
         return (
           <div className="fixed bottom-8 right-8 z-[100]">
@@ -740,10 +743,10 @@
           const [isGenerating, setIsGenerating] = useState(false);
           const [generatingKey, setGeneratingKey] = useState(null);
           const handleGenerateAI = async (key, promptText, currentValue, updaterFn) => {
-              if (isGenerating || !process.env.API_KEY) { if(!process.env.API_KEY) alert("API_KEY is not set."); return; }
+              if (isGenerating || !API_KEY) { if(!API_KEY) alert("API_KEY is not set."); return; }
               setIsGenerating(true); setGeneratingKey(key);
               try {
-                  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                  const ai = new GoogleGenAI({ apiKey: API_KEY });
                   const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: `${promptText}:\n\n"${currentValue}"` });
                   updaterFn(response.text.trim().replace(/^"|"$/g, ''));
               } catch (err) { console.error("AI Error:", err); alert("Error generating content."); } 
