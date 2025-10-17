@@ -2,7 +2,7 @@
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sairam Mashetty | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,6 +19,7 @@
         --accent-primary: #00f6ff;
         --accent-secondary: #d400ff;
         --border-color: rgba(67, 60, 119, 0.3);
+        --text-primary-on-accent: #000000;
       }
       html.light-theme {
         --bg-primary: #f4f7fc;
@@ -29,6 +30,7 @@
         --accent-primary: #0891b2;
         --accent-secondary: #9333ea;
         --border-color: rgba(0, 0, 0, 0.1);
+        --text-primary-on-accent: #ffffff;
       }
       body {
         font-family: 'DM Sans', sans-serif;
@@ -70,11 +72,41 @@
       @keyframes preloader-spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
       .loader-shape { width: 60px; height: 60px; border: 4px solid transparent; border-top-color: var(--accent-primary); border-right-color: var(--accent-secondary); border-radius: 50%; animation: preloader-spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; }
 
+      .btn-accent {
+        background-image: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: var(--text-primary-on-accent);
+      }
+      
+      /* Admin Panel Buttons */
+      .btn-admin { font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s, color 0.2s, opacity 0.2s; cursor: pointer; border: none; }
+      .btn-admin:disabled { opacity: 0.6; cursor: not-allowed; }
+      
+      .btn-admin-primary { background-color: var(--accent-secondary); color: #fff; }
+      .btn-admin-primary:hover:not(:disabled) { background-color: #a100cc; }
+      html.light-theme .btn-admin-primary { background-color: var(--accent-secondary); color: #fff; }
+      html.light-theme .btn-admin-primary:hover:not(:disabled) { background-color: #7e22ce; }
+
+      .btn-admin-accent { background-color: var(--accent-primary); color: var(--text-primary-on-accent); }
+      .btn-admin-accent:hover:not(:disabled) { opacity: 0.9; }
+
+      .btn-admin-success { background-color: #16a34a; color: #fff; }
+      .btn-admin-success:hover:not(:disabled) { background-color: #15803d; }
+
+      .btn-admin-danger { background-color: #dc2626; color: #fff; }
+      .btn-admin-danger:hover:not(:disabled) { background-color: #b91c1c; }
+
+      .btn-admin-secondary { background-color: #475569; color: #fff; }
+      .btn-admin-secondary:hover:not(:disabled) { background-color: #334155; }
+      html.light-theme .btn-admin-secondary { background-color: #d1d5db; color: #1f2937; }
+      html.light-theme .btn-admin-secondary:hover:not(:disabled) { background-color: #9ca3af; }
+
+      .btn-admin-close { color: var(--text-secondary); background: transparent; }
+      .btn-admin-close:hover { color: var(--text-primary); }
+
       /* Light theme specific overrides for tailwind classes */
       html.light-theme .text-white { color: var(--text-primary); }
       html.light-theme .hover\:text-white:hover { color: var(--text-primary); }
       html.light-theme .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
-      html.light-theme button.text-black, html.light-theme a.text-black { color: #fff; }
       html.light-theme .bg-slate-700 { background-color: #e5e7eb; color: var(--text-primary); }
       html.light-theme input::placeholder, html.light-theme textarea::placeholder { color: var(--text-secondary); }
       html.light-theme .border-slate-600 { border-color: #d1d5db; }
@@ -134,21 +166,30 @@
       const loadData = (key, defaultValue) => {
         try {
           const savedData = localStorage.getItem(key);
-          return savedData ? JSON.parse(savedData) : defaultValue;
+          const parsed = savedData ? JSON.parse(savedData) : defaultValue;
+          // Merge with default to ensure new properties are present
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            return {...defaultValue, ...parsed};
+          }
+          if (Array.isArray(parsed)) {
+              return parsed.map(item => typeof item === 'object' && item !== null ? {...(defaultValue.find(d => d.id === item.id) || defaultValue[0] || {}), ...item} : item);
+          }
+          return parsed;
         } catch (error) { console.error(`Error loading ${key}:`, error); return defaultValue; }
       };
 
-      const personalInfoDefault = { name: 'Sairam Mashetty', title: 'Associate Claims', summary: `As a detail-oriented Claims Associate, I specialize in ensuring insurance claims are handled accurately and efficiently. I'm skilled at investigating details, managing records, and navigating industry rules to support my team and deliver great results. I'm passionate about my work and always looking for ways to improve.`, email: 'sairammashetty@gmail.com', phone: '+91 9381094860', location: 'Hyderabad, Telangana, India.', linkedin: 'https://www.linkedin.com/in/sairam-mashetty', profileImageUrl: 'https://i.imgur.com/62GgIIL.png', educationImageUrl: 'https://picsum.photos/seed/education/500/300', contactIntro: "I'm open to new opportunities and collaborations. Feel free to reach out via email or phone.", cvUrl: './sairam-mashetty-resume.pdf', showCvButton: true, notificationMethod: 'email', notificationPhone: '' };
+      const personalInfoDefault = { name: 'Sairam Mashetty', title: 'Associate Claims', summary: `As a detail-oriented Claims Associate, I specialize in ensuring insurance claims are handled accurately and efficiently. I'm skilled at investigating details, managing records, and navigating industry rules to support my team and deliver great results. I'm passionate about my work and always looking for ways to improve.`, email: 'sairammashetty@gmail.com', phone: '+91 9381094860', location: 'Hyderabad, Telangana, India.', linkedin: 'https://www.linkedin.com/in/sairam-mashetty', profileImageUrl: 'https://i.imgur.com/62GgIIL.png', showProfileImage: true, educationImageUrl: 'https://picsum.photos/seed/education/500/300', showEducationImage: true, contactIntro: "I'm open to new opportunities and collaborations. Feel free to reach out via email or phone.", cvUrl: './sairam-mashetty-resume.pdf', showCvButton: true, notificationMethod: 'email', notificationPhone: '' };
       const educationDataDefault = { degree: 'Bachelor of Commerce (Computers)', institution: 'Sri Vijaya Sai Degree College, Telangana University', duration: '2018 - 2021', gpa: '8.6' };
       const navLinksDefault = [{ name: 'About', href: '#about' }, { name: 'Experience', href: '#experience' }, { name: 'Skills', href: '#skills' }, { name: 'Awards', href: '#awards' }, { name: 'Contact', href: '#contact' }];
       const sectionsDefault = [{ id: 'about', title: 'About', visible: true }, { id: 'experience', title: 'Experience', visible: true }, { id: 'skills', title: 'Skills', visible: true }, { id: 'awards', title: 'Awards', visible: true }, { id: 'projects', title: 'Projects', visible: false }, { id: 'certifications', title: 'Certifications', visible: false }, { id: 'articles', title: 'Articles', visible: true }, { id: 'contact', title: 'Contact', visible: true }];
-      const experienceDataDefault = [{ date: '09/2022 - Present', title: 'Associate Claims (Accumulators)', company: 'Carelon Global Solutions', logoUrl: 'https://i.imgur.com/eQ7DNfR.png', description: ['Carefully checked member enrollment details like names, birthdays, and insurance to ensure everything was correct.', 'Investigated and denied claims that were not covered, providing clear reasons to maintain fair processing.', 'Reviewed financial details like deductibles to find and fix errors, such as duplicate or incorrect charges.', 'Made precise adjustments to claims to correct any mistakes and ensure complete accuracy.', 'Tracked patient expenses to prevent over-charges and help them get the most out of their insurance benefits.', 'Ensured all claim processing followed insurance policy limits and company guidelines.'] }];
+      const experienceDataDefault = [{ id: 1, date: '09/2022 - Present', title: 'Associate Claims (Accumulators)', company: 'Carelon Global Solutions', logoUrl: 'https://i.imgur.com/eQ7DNfR.png', showLogo: true, description: ['Carefully checked member enrollment details like names, birthdays, and insurance to ensure everything was correct.', 'Investigated and denied claims that were not covered, providing clear reasons to maintain fair processing.', 'Reviewed financial details like deductibles to find and fix errors, such as duplicate or incorrect charges.', 'Made precise adjustments to claims to correct any mistakes and ensure complete accuracy.', 'Tracked patient expenses to prevent over-charges and help them get the most out of their insurance benefits.', 'Ensured all claim processing followed insurance policy limits and company guidelines.'] }];
       const skillsDataDefault = [{ name: 'Claims Investigation', level: 95 }, { name: 'Policy Analysis', level: 90 }, { name: 'MS Office Suite', level: 92 }, { name: 'Regulatory Compliance', level: 88 }, { name: 'Data Accuracy', level: 98 }, { name: 'Clear Communication', level: 92 }, { name: 'Problem Solving', level: 90 }];
-      const awardsDataDefault = [{ name: 'Impact Award', date: 'September 2024', description: 'Recognized with the Impact Award for consistently delivering outstanding performance and exceeding expectations.' }, { name: 'Impact Award', date: 'January 2024', description: 'Honored for exceptional contributions and a proactive approach to resolving complex claim discrepancies.' }, { name: 'Impact Award', date: 'March 2023', description: 'Awarded for meticulous investigation skills and a commitment to ensuring accuracy in claims processing.' }];
-      const articlesDataDefault = [{ title: 'The Future of Claims Processing', description: 'An insight into how AI and automation are revolutionizing the insurance claims industry.', imageUrl: 'https://picsum.photos/seed/claims-future/600/400', category: 'Insurtech', link: 'https://www.linkedin.com/pulse/future-claims-processing-automation-ai-insurance-industry-nylas/' }, { title: 'Navigating Regulatory Changes in Healthcare', description: 'A breakdown of recent regulatory updates and their impact on claims associates.', imageUrl: 'https://picsum.photos/seed/healthcare-regs/600/400', category: 'Compliance', link: 'https://www.wolterskluwer.com/en/expert-insights/regulatory-trends-in-us-healthcare' }, { title: 'Data Accuracy: The Cornerstone of Insurance', description: 'Exploring the critical importance of data integrity in preventing claim denials and ensuring customer satisfaction.', imageUrl: 'https://picsum.photos/seed/data-accuracy/600/400', category: 'Best Practices', link: 'https://www.spiceworks.com/tech/data-management/articles/what-is-data-accuracy/' }];
+      const awardsDataDefault = [{ id: 1, name: 'Impact Award', date: 'September 2024', description: 'Recognized with the Impact Award for consistently delivering outstanding performance and exceeding expectations.' }, { id: 2, name: 'Impact Award', date: 'January 2024', description: 'Honored for exceptional contributions and a proactive approach to resolving complex claim discrepancies.' }, { id: 3, name: 'Impact Award', date: 'March 2023', description: 'Awarded for meticulous investigation skills and a commitment to ensuring accuracy in claims processing.' }];
+      const articlesDataDefault = [{ id: 1, title: 'The Future of Claims Processing', description: 'An insight into how AI and automation are revolutionizing the insurance claims industry.', imageUrl: 'https://picsum.photos/seed/claims-future/600/400', showImage: true, category: 'Insurtech', link: 'https://www.linkedin.com/pulse/future-claims-processing-automation-ai-insurance-industry-nylas/' }, { id: 2, title: 'Navigating Regulatory Changes in Healthcare', description: 'A breakdown of recent regulatory updates and their impact on claims associates.', imageUrl: 'https://picsum.photos/seed/healthcare-regs/600/400', showImage: true, category: 'Compliance', link: 'https://www.wolterskluwer.com/en/expert-insights/regulatory-trends-in-us-healthcare' }, { id: 3, title: 'Data Accuracy: The Cornerstone of Insurance', description: 'Exploring the critical importance of data integrity in preventing claim denials and ensuring customer satisfaction.', imageUrl: 'https://picsum.photos/seed/data-accuracy/600/400', showImage: true, category: 'Best Practices', link: 'https://www.spiceworks.com/tech/data-management/articles/what-is-data-accuracy/' }];
       const projectsDataDefault = [];
       const certificationsDataDefault = [];
       const securityDataDefault = { recoveryMethod: 'phrase', recoveryPhrase: '', recoveryQuestion: '', recoveryAnswer: '' };
+      const aiFeaturesConfigDefault = { imageEditingEnabled: true };
       const securityQuestions = ["What was the name of your first pet?", "What is your mother's maiden name?", "What was the name of your elementary school?", "In what city were you born?", "What is your favorite book?"];
 
 
@@ -309,7 +350,7 @@
                   {personalInfo.title}
                 </h2>
                 <div className="flex justify-center md:justify-start gap-4 flex-wrap">
-                   <a href="#contact" className="text-black bg-gradient-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 transform hover:scale-105 glow-on-hover">
+                   <a href="#contact" className="btn-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 transform hover:scale-105 glow-on-hover">
                     Get In Touch
                   </a>
                   {personalInfo.showCvButton && personalInfo.cvUrl && (
@@ -323,10 +364,12 @@
                 </div>
               </div>
               <div className="relative hidden md:flex justify-center items-center h-[500px]">
-                <div className="relative group animate-float">
-                  <div className="absolute -inset-1 bg-gradient-accent rounded-full blur-xl opacity-60 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                  <img src={personalInfo.profileImageUrl} alt="Sairam Mashetty" className="relative w-72 h-72 lg:w-80 lg:w-80 rounded-full object-cover border-4 border-bg-secondary" />
-                </div>
+                {personalInfo.showProfileImage && (
+                  <div className="relative group animate-float">
+                    <div className="absolute -inset-1 bg-gradient-accent rounded-full blur-xl opacity-60 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <img src={personalInfo.profileImageUrl} alt="Sairam Mashetty" className="relative w-72 h-72 lg:w-80 lg:w-80 rounded-full object-cover border-4 border-bg-secondary" />
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -357,7 +400,7 @@
                 {personalInfo.summary}
               </p>
               <div ref={ref} className={`max-w-4xl mx-auto bg-bg-glass backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-2xl shadow-black/20 border border-border-color fade-in-up ${isVisible ? 'visible' : ''}`} style={{transitionDelay: '200ms'}}>
-                  <div className="grid md:grid-cols-2 gap-8 items-center">
+                  <div className={`grid ${personalInfo.showEducationImage ? 'md:grid-cols-2' : 'grid-cols-1'} gap-8 items-center`}>
                       <div>
                           <h3 className="text-2xl font-bold text-white mb-4">Education</h3>
                           <p className="text-lg font-semibold text-accent-primary">{educationData.degree}</p>
@@ -365,9 +408,11 @@
                           <p className="text-text-secondary mt-2">{educationData.duration}</p>
                           <p className="text-text-secondary mt-1">GPA: {educationData.gpa}</p>
                       </div>
-                       <div>
-                          <img src={personalInfo.educationImageUrl} alt="Education" className="rounded-lg shadow-lg border-2 border-border-color" />
-                      </div>
+                      {personalInfo.showEducationImage && (
+                         <div>
+                            <img src={personalInfo.educationImageUrl} alt="Education" className="rounded-lg shadow-lg border-2 border-border-color" />
+                        </div>
+                      )}
                   </div>
               </div>
             </Section>
@@ -386,7 +431,7 @@
                   <div className={`transform transition-all duration-700 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
                     <div className="p-6 rounded-2xl bg-bg-glass backdrop-blur-md border border-border-color shadow-2xl shadow-black/20 group hover:border-accent-primary/50">
                       <div className="flex items-center mb-3">
-                        {item.logoUrl && (<img src={item.logoUrl} alt={`${item.company} logo`} className="w-8 h-8 rounded-full mr-3" />)}
+                        {item.showLogo && item.logoUrl && (<img src={item.logoUrl} alt={`${item.company} logo`} className="w-8 h-8 rounded-full mr-3" />)}
                         <div>
                           <p className="text-sm text-accent-primary font-semibold">{item.date}</p>
                           <h3 className="font-bold text-white text-xl">{item.title}</h3>
@@ -479,7 +524,7 @@
               {articlesData.map((article, index) => (
                 <div key={index} className={`bg-bg-glass backdrop-blur-md rounded-2xl overflow-hidden shadow-2xl shadow-black/20 border border-border-color group transition-all duration-500 hover:-translate-y-2 hover:shadow-accent-primary/20 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
                   <a href={article.link} target="_blank" rel="noopener noreferrer">
-                    <div className="overflow-hidden h-56"><img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" /></div>
+                    {article.showImage && article.imageUrl && <div className="overflow-hidden h-56"><img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" /></div>}
                     <div className="p-6">
                       <p className="text-sm text-accent-primary font-semibold mb-2">{article.category}</p>
                       <h3 className="text-xl font-bold text-white mb-3">{article.title}</h3>
@@ -502,7 +547,7 @@
               {projectsData.map((project, index) => (
                 <div key={index} className={`bg-bg-glass backdrop-blur-md rounded-2xl overflow-hidden shadow-2xl shadow-black/20 border border-border-color group transition-all duration-500 hover:-translate-y-2 hover:shadow-accent-primary/20 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
                     <div className="overflow-hidden h-56 relative">
-                      <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      {project.showImage && project.imageUrl && <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />}
                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
                             {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="py-2 px-4 bg-accent-primary text-black font-semibold rounded-md hover:opacity-80 transition-opacity">Live View</a>}
                             {project.sourceUrl && <a href={project.sourceUrl} target="_blank" rel="noopener noreferrer" className="py-2 px-4 bg-slate-700 rounded-md text-white font-semibold hover:bg-slate-600 transition-colors">Source</a>}
@@ -531,7 +576,7 @@
               {certificationsData.map((cert, index) => (
                 <div key={index} className={`bg-bg-glass backdrop-blur-md p-6 rounded-2xl shadow-2xl shadow-black/20 border border-border-color group transition-all duration-500 hover:-translate-y-2 hover:shadow-accent-primary/20 fade-in-up ${isVisible ? 'visible' : ''}`} style={{ transitionDelay: `${index * 150}ms` }}>
                     <div className="flex items-start gap-4">
-                        {cert.imageUrl && <img src={cert.imageUrl} alt={cert.name} className="w-16 h-16 object-contain"/>}
+                        {cert.showImage && cert.imageUrl && <img src={cert.imageUrl} alt={cert.name} className="w-16 h-16 object-contain"/>}
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-white">{cert.name}</h3>
                             <p className="text-text-primary font-semibold">{cert.issuer}</p>
@@ -630,7 +675,7 @@
                            <textarea name="message" id="floating_message" value={formData.message} onChange={handleInputChange} className="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer min-h-[100px]" placeholder=" " required></textarea>
                            <label htmlFor="floating_message" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Your Message</label>
                         </div>
-                        <button type="submit" disabled={formStatus.status === 'submitting'} className="text-black bg-gradient-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-bold rounded-lg text-sm w-full sm:w-auto px-8 py-3 text-center transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed">
+                        <button type="submit" disabled={formStatus.status === 'submitting'} className="btn-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-bold rounded-lg text-sm w-full sm:w-auto px-8 py-3 text-center transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed">
                            {formStatus.status === 'submitting' ? 'Sending...' : 'Send Message'}
                         </button>
                      </form>
@@ -670,13 +715,13 @@
 
       const Chatbot = ({ portfolioData }) => {
         const [isOpen, setIsOpen] = useState(false);
-        const [messages, setMessages] = useState([{ sender: 'ai', text: API_KEY ? "Hello! I'm Sairam's AI assistant. Ask me anything about his skills, experience, or the US healthcare industry." : "AI Assistant is currently unavailable. An API key is required to enable this feature." }]);
+        const [messages, setMessages] = useState([{ sender: 'ai', text: API_KEY ? "Hello! I'm Sairam's AI assistant. Ask me anything about his skills, experience, or the US healthcare industry." : "Hello! I am Sairam's AI assistant, currently in offline mode. For my full capabilities, the site owner needs to configure the Gemini API." }]);
         const [isLoading, setIsLoading] = useState(false);
         const [chat, setChat] = useState(null);
         const messagesEndRef = useRef(null);
 
         useEffect(() => {
-          if (!API_KEY) { console.warn("API_KEY not set. AI Chatbot disabled."); return; }
+          if (!API_KEY) { console.warn("API_KEY not set. AI Chatbot running in offline mode."); return; }
           const ai = new GoogleGenAI({ apiKey: API_KEY });
           const context = `Name: ${portfolioData.personalInfo.name}; Title: ${portfolioData.personalInfo.title}; Summary: ${portfolioData.personalInfo.summary}; Contact Email: ${portfolioData.personalInfo.email}; Contact Phone: ${portfolioData.personalInfo.phone}; LinkedIn: ${portfolioData.personalInfo.linkedin}; Experience: ${portfolioData.experienceData.map(job => `${job.title} at ${job.company}: ${job.description.join('. ')}`).join('; ')}; Skills: ${portfolioData.skillsData.map(skill => `${skill.name}`).join(', ')};`;
           const systemInstruction = `You are a professional AI assistant for Sairam Mashetty's portfolio. Answer questions about Sairam's background using ONLY the specific context provided. You are also an expert on the US healthcare and insurance claims industry and can answer general questions on these topics. Be friendly, concise, and professional. CONTEXT ABOUT SAIRAM: ${context}`;
@@ -688,10 +733,19 @@
         const handleSendMessage = async (e) => {
           e.preventDefault();
           const userInput = e.target.elements.message.value.trim();
-          if (!userInput || isLoading || !chat) return;
+          if (!userInput || isLoading) return;
           setMessages(prev => [...prev, { sender: 'user', text: userInput }]);
           setIsLoading(true);
           e.target.reset();
+          
+          if (!chat) { // API_KEY is not available, run in offline mode
+            setTimeout(() => {
+              setMessages(prev => [...prev, { sender: 'ai', text: "I'm currently running in offline mode. The portfolio owner needs to configure my connection to the Gemini API to enable my full capabilities." }]);
+              setIsLoading(false);
+            }, 1000);
+            return;
+          }
+
           try {
             const response = await chat.sendMessage({ message: userInput });
             setMessages(prev => [...prev, { sender: 'ai', text: response.text }]);
@@ -720,8 +774,8 @@
                   <div ref={messagesEndRef} />
                 </div>
                 <form onSubmit={handleSendMessage} className="p-3 border-t border-border-color flex items-center gap-2">
-                  <input name="message" type="text" placeholder={API_KEY ? "Ask a question..." : "Unavailable"} className="w-full bg-slate-700 border-slate-600 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm disabled:cursor-not-allowed" disabled={isLoading || !API_KEY} />
-                  <button type="submit" className="p-2 rounded-full bg-accent-primary text-black hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isLoading || !API_KEY}><SendIcon className="w-5 h-5"/></button>
+                  <input name="message" type="text" placeholder={API_KEY ? "Ask a question..." : "Ask (offline mode)"} className="w-full bg-slate-700 border-slate-600 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm disabled:cursor-not-allowed" disabled={isLoading} />
+                  <button type="submit" className="p-2 rounded-full bg-accent-primary text-black hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isLoading}><SendIcon className="w-5 h-5"/></button>
                 </form>
               </div>
             </div>
@@ -777,6 +831,7 @@
           const [projectsData, setProjectsData] = useState(() => loadData('projectsData', projectsDataDefault));
           const [certificationsData, setCertificationsData] = useState(() => loadData('certificationsData', certificationsDataDefault));
           const [sections, setSections] = useState(() => loadData('sectionsConfig', sectionsDefault));
+          const [aiFeaturesConfig, setAiFeaturesConfig] = useState(() => loadData('aiFeaturesConfig', aiFeaturesConfigDefault));
 
           // --- AI MODAL STATE ---
           const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -791,7 +846,7 @@
           const [isGenerating, setIsGenerating] = useState(false);
           const [generatingKey, setGeneratingKey] = useState(null);
           const handleGenerateAI = async (key, promptText, currentValue, updaterFn) => {
-              if (isGenerating || !API_KEY) { if(!API_KEY) alert("API_KEY is not set."); return; }
+              if (isGenerating || !API_KEY) { return; }
               setIsGenerating(true); setGeneratingKey(key);
               try {
                   const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -803,19 +858,27 @@
 
           const saveData = (key, data) => { localStorage.setItem(key, JSON.stringify(data)); alert(`${key.replace(/Data|Config/g, '')} saved!`); };
           const handleItemChange = (setter, index, field, value, isArray = false) => { setter(prev => prev.map((item, i) => i === index ? {...item, [field]: isArray ? value.split('\n') : value} : item)); };
-          const handleAddItem = (setter, newItem) => setter(prev => [...prev, newItem]);
+          const handleAddItem = (setter, newItem) => setter(prev => [...prev, {...newItem, id: Date.now() }]);
           const handleRemoveItem = (setter, index) => setter(prev => prev.filter((_, i) => i !== index));
           
-          const AIGenerateButton = ({ fieldKey, prompt, currentValue, onGenerated }) => (<button type="button" onClick={() => handleGenerateAI(fieldKey, prompt, currentValue, onGenerated)} disabled={isGenerating} className="ml-2 p-2 bg-gradient-accent rounded-md text-black hover:opacity-90 disabled:opacity-50 disabled:cursor-wait transition-opacity flex items-center text-sm"><MagicWandIcon className="w-4 h-4 mr-2" />{isGenerating && generatingKey === fieldKey ? '...' : 'Enhance'}</button>);
+          const AIGenerateButton = ({ fieldKey, prompt, currentValue, onGenerated }) => (<button type="button" onClick={() => handleGenerateAI(fieldKey, prompt, currentValue, onGenerated)} disabled={isGenerating || !API_KEY} className="ml-2 p-2 btn-admin btn-admin-accent rounded-md flex items-center text-sm"><MagicWandIcon className="w-4 h-4 mr-2" />{isGenerating && generatingKey === fieldKey ? '...' : 'Enhance'}</button>);
           const renderInput = (label, value, onChange, type = "text", props) => (<div className="mb-4"><label className="block text-slate-300 text-sm font-bold mb-2">{label}</label><input type={type} value={value} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-accent-primary" {...props}/></div>);
           const renderTextarea = (label, value, onChange, aiOptions = null) => (<div className="mb-4"><div className="flex justify-between items-center mb-2"><label className="block text-slate-300 text-sm font-bold">{label}</label>{aiOptions && <AIGenerateButton {...aiOptions} />}</div><textarea value={value} onChange={onChange} rows={5} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-accent-primary min-h-[120px]"/></div>);
           const ToggleSwitch = ({ label, checked, onChange }) => (<div className="flex items-center justify-between my-4 py-2 border-b border-t border-border-color"><span className="text-slate-300 font-bold">{label}</span><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" /><div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-secondary"></div></label></div>);
           const RadioGroup = ({ label, name, options, value, onChange }) => (<div className="mb-4"><label className="block text-slate-300 text-sm font-bold mb-2">{label}</label><div className="flex gap-4">{options.map(opt => (<label key={opt.value} className="flex items-center"><input type="radio" name={name} value={opt.value} checked={value === opt.value} onChange={onChange} className="w-4 h-4 text-accent-secondary bg-slate-600 border-slate-500 focus:ring-accent-secondary focus:ring-2" /> <span className="ml-2 text-white">{opt.label}</span></label>))}</div></div>);
           
-          const ImageInput = ({ label, imageUrl, onUrlChange, onFileChange, onAiEdit }) => {
+          const ImageInput = ({ label, imageUrl, onUrlChange, onFileChange, onAiEdit, showImageToggle, isImageShown, onImageToggleChange }) => {
             return (
               <div className="mb-4">
-                <label className="block text-slate-300 text-sm font-bold mb-2">{label}</label>
+                <div className="flex justify-between items-center mb-2">
+                    <label className="block text-slate-300 text-sm font-bold">{label}</label>
+                    {showImageToggle && (
+                        <div className="flex items-center">
+                            <span className="text-xs mr-2 text-slate-400">Show Image</span>
+                            <label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked={isImageShown} onChange={onImageToggleChange} className="sr-only peer" /><div className="w-9 h-5 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent-secondary"></div></label>
+                        </div>
+                    )}
+                </div>
                 <div className="flex items-center gap-4">
                   {imageUrl && <img src={imageUrl} alt="preview" className="w-20 h-20 rounded-md object-cover bg-slate-800" />}
                   <div className="flex-1">
@@ -825,7 +888,7 @@
                         Upload File
                         <input type="file" accept="image/*" className="hidden" onChange={onFileChange}/>
                       </label>
-                      <button type="button" onClick={onAiEdit} disabled={!API_KEY} className="p-2 bg-gradient-accent rounded-md text-black hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center text-sm"><MagicWandIcon className="w-4 h-4" /></button>
+                      <button type="button" onClick={onAiEdit} disabled={!API_KEY || !aiFeaturesConfig.imageEditingEnabled} className="p-2 bg-gradient-accent rounded-md text-black disabled:opacity-50 flex items-center text-sm"><MagicWandIcon className="w-4 h-4" /></button>
                     </div>
                   </div>
                 </div>
@@ -846,7 +909,7 @@
             }, [isOpen, imageData.currentImage]);
 
             const handleGenerate = async () => {
-              if (!prompt || !API_KEY) return;
+              if (!prompt || !API_KEY) return; 
               setIsLoading(true);
               try {
                 const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -888,14 +951,14 @@
                     </div>
                     <div className="flex flex-col h-full">
                         {renderTextarea("Edit Prompt", prompt, e => setPrompt(e.target.value))}
-                        <button onClick={handleGenerate} disabled={isLoading || !prompt} className="w-full bg-gradient-accent text-black font-bold py-2 px-4 rounded hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2">
+                        <button onClick={handleGenerate} disabled={isLoading || !prompt} className="w-full btn-admin btn-admin-primary flex items-center justify-center gap-2">
                             <MagicWandIcon className="w-5 h-5"/>
                             {isLoading ? 'Generating...' : 'Generate Image'}
                         </button>
                         <p className="text-xs text-slate-400 mt-2 text-center">Describe the changes you want to make.</p>
                         <div className="mt-auto pt-4 flex gap-4">
-                           <button onClick={onClose} className="flex-1 bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded transition-colors">Cancel</button>
-                           <button onClick={handleSave} className="flex-1 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Image</button>
+                           <button onClick={onClose} className="flex-1 btn-admin btn-admin-secondary">Cancel</button>
+                           <button onClick={handleSave} className="flex-1 btn-admin btn-admin-accent">Save Image</button>
                         </div>
                     </div>
                   </div>
@@ -915,14 +978,14 @@
                                 {securityData.recoveryMethod === 'question' && <p className="text-slate-300 mb-2 text-sm">Q: {securityData.recoveryQuestion}</p>}
                                 {renderInput(securityData.recoveryMethod === 'phrase' ? 'Recovery Phrase' : 'Your Answer', recoveryAttempt, (e) => setRecoveryAttempt(e.target.value))}
                                 {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-                                <button className="bg-gradient-accent hover:bg-gradient-to-l text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-all duration-300" type="submit">Reset Password</button>
+                                <button className="btn-accent hover:bg-gradient-to-l font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-all duration-300" type="submit">Reset Password</button>
                                 <button type="button" onClick={() => { setRecoveryMode(false); setError(''); }} className="text-center w-full mt-4 text-sm text-text-secondary hover:text-white">Back to Login</button>
                              </form>
                         ) : (
                              <form onSubmit={handleLogin}>
                                 {renderInput("Password", password, (e) => setPassword(e.target.value), "password")}
                                 {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-                                <button className="bg-gradient-accent hover:bg-gradient-to-l text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-all duration-300" type="submit">Sign In</button>
+                                <button className="btn-accent hover:bg-gradient-to-l font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-all duration-300" type="submit">Sign In</button>
                                 <button type="button" onClick={() => { setRecoveryMode(true); setError(''); }} className="text-center w-full mt-4 text-sm text-text-secondary hover:text-white">Forgot Password?</button>
                             </form>
                         )}
@@ -940,11 +1003,17 @@
                       <h1 className="text-2xl font-bold mb-8 text-center bg-gradient-accent text-gradient font-heading">Admin Panel</h1>
                       <nav className="flex flex-col space-y-2">{tabs.map(tab => (<button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`p-2 rounded-md text-left transition-colors ${activeTab === tab.id ? 'bg-accent-primary/20 text-accent-primary' : 'hover:bg-slate-700'}`}>{tab.label}</button>))}</nav>
                       <div className="mt-auto">
-                           <button onClick={() => window.location.hash = ''} className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded mb-2">View Portfolio</button>
-                          <button onClick={handleLogout} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</button>
+                           <button onClick={() => window.location.hash = ''} className="w-full btn-admin btn-admin-secondary mb-2">View Portfolio</button>
+                          <button onClick={handleLogout} className="w-full btn-admin btn-admin-danger">Logout</button>
                       </div>
                   </aside>
                   <main className="flex-grow p-8 overflow-y-auto">
+                    {!API_KEY && (
+                      <div className="bg-amber-500/10 border border-amber-500 text-amber-300 p-4 rounded-lg mb-6 text-sm">
+                          <p className="font-bold">AI Features Disabled</p>
+                          <p>To enable AI-powered content generation and image editing, please set your <code className="bg-black/30 px-1 rounded-sm">API_KEY</code> in the deployment environment variables of your hosting provider (e.g., Netlify, Vercel).</p>
+                      </div>
+                    )}
                     {activeTab === 'sections' && (
                         <div>
                             <h2 className="text-3xl font-bold mb-2 text-white font-heading">Manage Page Sections</h2>
@@ -959,7 +1028,7 @@
                                     />
                                 ))}
                             </div>
-                            <button onClick={() => saveData('sectionsConfig', sections)} className="mt-6 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Section Visibility</button>
+                            <button onClick={() => saveData('sectionsConfig', sections)} className="mt-6 btn-admin btn-admin-primary">Save Section Visibility</button>
                         </div>
                     )}
                     {activeTab === 'personal' && (
@@ -974,7 +1043,7 @@
                                   {renderInput("Phone", personalInfo.phone, e => setPersonalInfo({...personalInfo, phone: e.target.value}), "tel")}
                                   {renderInput("Location", personalInfo.location, e => setPersonalInfo({...personalInfo, location: e.target.value}))}
                                   {renderInput("LinkedIn URL", personalInfo.linkedin, e => setPersonalInfo({...personalInfo, linkedin: e.target.value}), "url")}
-                                  <ImageInput label="Profile Image" imageUrl={personalInfo.profileImageUrl} onUrlChange={e => setPersonalInfo({...personalInfo, profileImageUrl: e.target.value})} onFileChange={async e => setPersonalInfo({...personalInfo, profileImageUrl: await fileToBase64(e.target.files[0])})} onAiEdit={() => openAiModal(personalInfo.profileImageUrl, (newImg) => setPersonalInfo({...personalInfo, profileImageUrl: newImg}))} />
+                                  <ImageInput label="Profile Image" imageUrl={personalInfo.profileImageUrl} onUrlChange={e => setPersonalInfo({...personalInfo, profileImageUrl: e.target.value})} onFileChange={async e => setPersonalInfo({...personalInfo, profileImageUrl: await fileToBase64(e.target.files[0])})} onAiEdit={() => openAiModal(personalInfo.profileImageUrl, (newImg) => setPersonalInfo({...personalInfo, profileImageUrl: newImg}))} showImageToggle={true} isImageShown={!!personalInfo.showProfileImage} onImageToggleChange={e => setPersonalInfo({...personalInfo, showProfileImage: e.target.checked})} />
                                   {renderInput("CV URL", personalInfo.cvUrl, e => setPersonalInfo({...personalInfo, cvUrl: e.target.value}), "text")}
                                   <ToggleSwitch label="Show CV Download Button" checked={!!personalInfo.showCvButton} onChange={e => setPersonalInfo({...personalInfo, showCvButton: e.target.checked})} />
                                   {renderTextarea("Summary", personalInfo.summary, e => setPersonalInfo({...personalInfo, summary: e.target.value}), { fieldKey: 'summary', prompt: "Rewrite this summary for a Claims Associate's portfolio.", currentValue: personalInfo.summary, onGenerated: (newText) => setPersonalInfo({...personalInfo, summary: newText})})}
@@ -994,7 +1063,7 @@
                                     )}
                                   </div>
                                   
-                                  <button onClick={() => saveData('personalInfo', personalInfo)} className="mt-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Personal</button>
+                                  <button onClick={() => saveData('personalInfo', personalInfo)} className="mt-4 btn-admin btn-admin-primary">Save Personal</button>
                               </div>
                               <div className="bg-bg-secondary p-6 rounded-lg border border-border-color">
                                 <h3 className="text-xl font-semibold mb-4 text-accent-primary">Education</h3>
@@ -1002,8 +1071,8 @@
                                 {renderInput("Institution", educationData.institution, e => setEducationData({...educationData, institution: e.target.value}))}
                                 {renderInput("Duration", educationData.duration, e => setEducationData({...educationData, duration: e.target.value}))}
                                 {renderInput("GPA", educationData.gpa, e => setEducationData({...educationData, gpa: e.target.value}))}
-                                <ImageInput label="Education Image" imageUrl={personalInfo.educationImageUrl} onUrlChange={e => setPersonalInfo({...personalInfo, educationImageUrl: e.target.value})} onFileChange={async e => setPersonalInfo({...personalInfo, educationImageUrl: await fileToBase64(e.target.files[0])})} onAiEdit={() => openAiModal(personalInfo.educationImageUrl, (newImg) => setPersonalInfo({...personalInfo, educationImageUrl: newImg}))} />
-                                <button onClick={() => { saveData('educationData', educationData); saveData('personalInfo', personalInfo); }} className="mt-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Education</button>
+                                <ImageInput label="Education Image" imageUrl={personalInfo.educationImageUrl} onUrlChange={e => setPersonalInfo({...personalInfo, educationImageUrl: e.target.value})} onFileChange={async e => setPersonalInfo({...personalInfo, educationImageUrl: await fileToBase64(e.target.files[0])})} onAiEdit={() => openAiModal(personalInfo.educationImageUrl, (newImg) => setPersonalInfo({...personalInfo, educationImageUrl: newImg}))} showImageToggle={true} isImageShown={!!personalInfo.showEducationImage} onImageToggleChange={e => setPersonalInfo({...personalInfo, showEducationImage: e.target.checked})} />
+                                <button onClick={() => { saveData('educationData', educationData); saveData('personalInfo', personalInfo); }} className="mt-4 btn-admin btn-admin-primary">Save Education</button>
                               </div>
                             </div>
                         </div>
@@ -1013,19 +1082,19 @@
                             <h2 className="text-3xl font-bold mb-6 font-heading">Edit Experience</h2>
                             <div className="space-y-6">
                                 {experienceData.map((item, index) => (
-                                    <div key={index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
-                                        <button onClick={() => handleRemoveItem(setExperienceData, index)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><CloseIcon className="w-6 h-6" /></button>
+                                    <div key={item.id || index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
+                                        <button onClick={() => handleRemoveItem(setExperienceData, index)} className="absolute top-4 right-4 btn-admin-close"><CloseIcon className="w-6 h-6" /></button>
                                         <h3 className="text-lg font-semibold text-accent-primary mb-2">Item #{index + 1}</h3>
                                         {renderInput(`Date`, item.date, e => handleItemChange(setExperienceData, index, 'date', e.target.value))}
                                         {renderInput(`Title`, item.title, e => handleItemChange(setExperienceData, index, 'title', e.target.value))}
                                         {renderInput(`Company`, item.company, e => handleItemChange(setExperienceData, index, 'company', e.target.value))}
-                                        <ImageInput label="Company Logo" imageUrl={item.logoUrl} onUrlChange={e => handleItemChange(setExperienceData, index, 'logoUrl', e.target.value)} onFileChange={async e => handleItemChange(setExperienceData, index, 'logoUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.logoUrl, (newImg) => handleItemChange(setExperienceData, index, 'logoUrl', newImg))} />
+                                        <ImageInput label="Company Logo" imageUrl={item.logoUrl} onUrlChange={e => handleItemChange(setExperienceData, index, 'logoUrl', e.target.value)} onFileChange={async e => handleItemChange(setExperienceData, index, 'logoUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.logoUrl, (newImg) => handleItemChange(setExperienceData, index, 'logoUrl', newImg))} showImageToggle={true} isImageShown={!!item.showLogo} onImageToggleChange={e => handleItemChange(setExperienceData, index, 'showLogo', e.target.checked)} />
                                         {renderTextarea(`Description (one point per line)`, Array.isArray(item.description) ? item.description.join('\n') : '', e => handleItemChange(setExperienceData, index, 'description', e.target.value, true))}
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => handleAddItem(setExperienceData, { date: '', title: '', company: '', logoUrl: '', description: [] })} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Experience</button>
-                            <button onClick={() => saveData('experienceData', experienceData)} className="mt-6 ml-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Experience</button>
+                            <button onClick={() => handleAddItem(setExperienceData, { date: '', title: '', company: '', logoUrl: '', showLogo: true, description: [] })} className="mt-6 btn-admin btn-admin-success">Add Experience</button>
+                            <button onClick={() => saveData('experienceData', experienceData)} className="mt-6 ml-4 btn-admin btn-admin-primary">Save Experience</button>
                         </div>
                     )}
                      {activeTab === 'skills' && (
@@ -1034,15 +1103,15 @@
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {skillsData.map((item, index) => (
                                     <div key={index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
-                                        <button onClick={() => handleRemoveItem(setSkillsData, index)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><CloseIcon className="w-6 h-6" /></button>
+                                        <button onClick={() => handleRemoveItem(setSkillsData, index)} className="absolute top-4 right-4 btn-admin-close"><CloseIcon className="w-6 h-6" /></button>
                                         <h3 className="text-lg font-semibold text-accent-primary mb-2">Skill #{index + 1}</h3>
                                         {renderInput(`Name`, item.name, e => handleItemChange(setSkillsData, index, 'name', e.target.value))}
                                         {renderInput(`Level (0-100)`, item.level, e => handleItemChange(setSkillsData, index, 'level', e.target.value), 'number', {min: 0, max: 100})}
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => handleAddItem(setSkillsData, { name: '', level: 80 })} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Skill</button>
-                            <button onClick={() => saveData('skillsData', skillsData)} className="mt-6 ml-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Skills</button>
+                            <button onClick={() => handleAddItem(setSkillsData, { name: '', level: 80 })} className="mt-6 btn-admin btn-admin-success">Add Skill</button>
+                            <button onClick={() => saveData('skillsData', skillsData)} className="mt-6 ml-4 btn-admin btn-admin-primary">Save Skills</button>
                         </div>
                     )}
                     {activeTab === 'awards' && (
@@ -1050,8 +1119,8 @@
                             <h2 className="text-3xl font-bold mb-6 font-heading">Edit Awards</h2>
                             <div className="space-y-6">
                                 {awardsData.map((item, index) => (
-                                    <div key={index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
-                                        <button onClick={() => handleRemoveItem(setAwardsData, index)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><CloseIcon className="w-6 h-6" /></button>
+                                    <div key={item.id || index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
+                                        <button onClick={() => handleRemoveItem(setAwardsData, index)} className="absolute top-4 right-4 btn-admin-close"><CloseIcon className="w-6 h-6" /></button>
                                         <h3 className="text-lg font-semibold text-accent-primary mb-2">Award #{index + 1}</h3>
                                         {renderInput(`Name`, item.name, e => handleItemChange(setAwardsData, index, 'name', e.target.value))}
                                         {renderInput(`Date`, item.date, e => handleItemChange(setAwardsData, index, 'date', e.target.value))}
@@ -1059,8 +1128,8 @@
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => handleAddItem(setAwardsData, { name: '', date: '', description: '' })} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Award</button>
-                            <button onClick={() => saveData('awardsData', awardsData)} className="mt-6 ml-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Awards</button>
+                            <button onClick={() => handleAddItem(setAwardsData, { name: '', date: '', description: '' })} className="mt-6 btn-admin btn-admin-success">Add Award</button>
+                            <button onClick={() => saveData('awardsData', awardsData)} className="mt-6 ml-4 btn-admin btn-admin-primary">Save Awards</button>
                         </div>
                     )}
                     {activeTab === 'projects' && (
@@ -1068,11 +1137,11 @@
                             <h2 className="text-3xl font-bold mb-6 font-heading">Edit Projects</h2>
                             <div className="space-y-6">
                                 {projectsData.map((item, index) => (
-                                    <div key={index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
-                                        <button onClick={() => handleRemoveItem(setProjectsData, index)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><CloseIcon className="w-6 h-6" /></button>
+                                    <div key={item.id || index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
+                                        <button onClick={() => handleRemoveItem(setProjectsData, index)} className="absolute top-4 right-4 btn-admin-close"><CloseIcon className="w-6 h-6" /></button>
                                         <h3 className="text-lg font-semibold text-accent-primary mb-2">Project #{index + 1}</h3>
                                         {renderInput(`Title`, item.title, e => handleItemChange(setProjectsData, index, 'title', e.target.value))}
-                                        <ImageInput label="Project Image" imageUrl={item.imageUrl} onUrlChange={e => handleItemChange(setProjectsData, index, 'imageUrl', e.target.value)} onFileChange={async e => handleItemChange(setProjectsData, index, 'imageUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.imageUrl, (newImg) => handleItemChange(setProjectsData, index, 'imageUrl', newImg))} />
+                                        <ImageInput label="Project Image" imageUrl={item.imageUrl} onUrlChange={e => handleItemChange(setProjectsData, index, 'imageUrl', e.target.value)} onFileChange={async e => handleItemChange(setProjectsData, index, 'imageUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.imageUrl, (newImg) => handleItemChange(setProjectsData, index, 'imageUrl', newImg))} showImageToggle={true} isImageShown={!!item.showImage} onImageToggleChange={e => handleItemChange(setProjectsData, index, 'showImage', e.target.checked)} />
                                         {renderInput(`Live URL`, item.liveUrl, e => handleItemChange(setProjectsData, index, 'liveUrl', e.target.value))}
                                         {renderInput(`Source URL`, item.sourceUrl, e => handleItemChange(setProjectsData, index, 'sourceUrl', e.target.value))}
                                         {renderTextarea(`Description`, item.description, e => handleItemChange(setProjectsData, index, 'description', e.target.value))}
@@ -1080,8 +1149,8 @@
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => handleAddItem(setProjectsData, { title: '', imageUrl: 'https://picsum.photos/seed/new-project/600/400', description: '', tags: [], liveUrl: '', sourceUrl: '' })} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Project</button>
-                            <button onClick={() => saveData('projectsData', projectsData)} className="mt-6 ml-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Projects</button>
+                            <button onClick={() => handleAddItem(setProjectsData, { title: '', imageUrl: 'https://picsum.photos/seed/new-project/600/400', showImage: true, description: '', tags: [], liveUrl: '', sourceUrl: '' })} className="mt-6 btn-admin btn-admin-success">Add Project</button>
+                            <button onClick={() => saveData('projectsData', projectsData)} className="mt-6 ml-4 btn-admin btn-admin-primary">Save Projects</button>
                         </div>
                     )}
                     {activeTab === 'certifications' && (
@@ -1089,19 +1158,19 @@
                             <h2 className="text-3xl font-bold mb-6 font-heading">Edit Certifications</h2>
                              <div className="space-y-6">
                                 {certificationsData.map((item, index) => (
-                                    <div key={index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
-                                        <button onClick={() => handleRemoveItem(setCertificationsData, index)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><CloseIcon className="w-6 h-6" /></button>
+                                    <div key={item.id || index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
+                                        <button onClick={() => handleRemoveItem(setCertificationsData, index)} className="absolute top-4 right-4 btn-admin-close"><CloseIcon className="w-6 h-6" /></button>
                                         <h3 className="text-lg font-semibold text-accent-primary mb-2">Certification #{index + 1}</h3>
                                         {renderInput(`Name`, item.name, e => handleItemChange(setCertificationsData, index, 'name', e.target.value))}
                                         {renderInput(`Issuer`, item.issuer, e => handleItemChange(setCertificationsData, index, 'issuer', e.target.value))}
                                         {renderInput(`Date`, item.date, e => handleItemChange(setCertificationsData, index, 'date', e.target.value))}
                                         {renderInput(`Credential URL`, item.credentialUrl, e => handleItemChange(setCertificationsData, index, 'credentialUrl', e.target.value))}
-                                        <ImageInput label="Certification/Logo Image" imageUrl={item.imageUrl} onUrlChange={e => handleItemChange(setCertificationsData, index, 'imageUrl', e.target.value)} onFileChange={async e => handleItemChange(setCertificationsData, index, 'imageUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.imageUrl, (newImg) => handleItemChange(setCertificationsData, index, 'imageUrl', newImg))} />
+                                        <ImageInput label="Certification/Logo Image" imageUrl={item.imageUrl} onUrlChange={e => handleItemChange(setCertificationsData, index, 'imageUrl', e.target.value)} onFileChange={async e => handleItemChange(setCertificationsData, index, 'imageUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.imageUrl, (newImg) => handleItemChange(setCertificationsData, index, 'imageUrl', newImg))} showImageToggle={true} isImageShown={!!item.showImage} onImageToggleChange={e => handleItemChange(setCertificationsData, index, 'showImage', e.target.checked)} />
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => handleAddItem(setCertificationsData, { name: '', issuer: '', date: '', credentialUrl: '', imageUrl: '' })} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Certification</button>
-                            <button onClick={() => saveData('certificationsData', certificationsData)} className="mt-6 ml-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Certifications</button>
+                            <button onClick={() => handleAddItem(setCertificationsData, { name: '', issuer: '', date: '', credentialUrl: '', imageUrl: '', showImage: true })} className="mt-6 btn-admin btn-admin-success">Add Certification</button>
+                            <button onClick={() => saveData('certificationsData', certificationsData)} className="mt-6 ml-4 btn-admin btn-admin-primary">Save Certifications</button>
                         </div>
                     )}
                     {activeTab === 'articles' && (
@@ -1109,26 +1178,27 @@
                             <h2 className="text-3xl font-bold mb-6 font-heading">Edit Articles</h2>
                              <div className="space-y-6">
                                 {articlesData.map((item, index) => (
-                                    <div key={index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
-                                        <button onClick={() => handleRemoveItem(setArticlesData, index)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><CloseIcon className="w-6 h-6" /></button>
+                                    <div key={item.id || index} className="bg-bg-secondary p-6 rounded-lg border border-border-color relative">
+                                        <button onClick={() => handleRemoveItem(setArticlesData, index)} className="absolute top-4 right-4 btn-admin-close"><CloseIcon className="w-6 h-6" /></button>
                                         <h3 className="text-lg font-semibold text-accent-primary mb-2">Article #{index + 1}</h3>
                                         {renderInput(`Title`, item.title, e => handleItemChange(setArticlesData, index, 'title', e.target.value))}
                                         {renderInput(`Category`, item.category, e => handleItemChange(setArticlesData, index, 'category', e.target.value))}
-                                        <ImageInput label="Article Image" imageUrl={item.imageUrl} onUrlChange={e => handleItemChange(setArticlesData, index, 'imageUrl', e.target.value)} onFileChange={async e => handleItemChange(setArticlesData, index, 'imageUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.imageUrl, (newImg) => handleItemChange(setArticlesData, index, 'imageUrl', newImg))} />
+                                        <ImageInput label="Article Image" imageUrl={item.imageUrl} onUrlChange={e => handleItemChange(setArticlesData, index, 'imageUrl', e.target.value)} onFileChange={async e => handleItemChange(setArticlesData, index, 'imageUrl', await fileToBase64(e.target.files[0]))} onAiEdit={() => openAiModal(item.imageUrl, (newImg) => handleItemChange(setArticlesData, index, 'imageUrl', newImg))} showImageToggle={true} isImageShown={!!item.showImage} onImageToggleChange={e => handleItemChange(setArticlesData, index, 'showImage', e.target.checked)} />
                                         {renderInput(`Link`, item.link, e => handleItemChange(setArticlesData, index, 'link', e.target.value))}
                                         {renderTextarea(`Description`, item.description, e => handleItemChange(setArticlesData, index, 'description', e.target.value))}
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => handleAddItem(setArticlesData, { title: '', description: '', imageUrl: 'https://picsum.photos/seed/new-article/600/400', category: '', link: '#' })} className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Article</button>
-                            <button onClick={() => saveData('articlesData', articlesData)} className="mt-6 ml-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Articles</button>
+                            <button onClick={() => handleAddItem(setArticlesData, { title: '', description: '', imageUrl: 'https://picsum.photos/seed/new-article/600/400', showImage: true, category: '', link: '#' })} className="mt-6 btn-admin btn-admin-success">Add Article</button>
+                            <button onClick={() => saveData('articlesData', articlesData)} className="mt-6 ml-4 btn-admin btn-admin-primary">Save Articles</button>
                         </div>
                     )}
                     {activeTab === 'security' && (
                         <div>
-                            <h2 className="text-3xl font-bold mb-2 text-white font-heading">Security</h2>
-                            <p className="text-slate-400 mb-6">Set a secret recovery method to reset your password. Store this information in a safe place.</p>
-                            <div className="bg-bg-secondary p-6 rounded-lg border border-border-color">
+                            <h2 className="text-3xl font-bold mb-2 text-white font-heading">Security & AI Settings</h2>
+                            <p className="text-slate-400 mb-6">Manage your password recovery method and AI feature preferences.</p>
+                            <div className="bg-bg-secondary p-6 rounded-lg border border-border-color mb-6">
+                              <h3 className="text-xl font-semibold mb-4 text-accent-primary">Password Recovery</h3>
                               <RadioGroup
                                 label="Recovery Method"
                                 name="recoveryMethod"
@@ -1155,7 +1225,16 @@
                                 </>
                               )}
                             </div>
-                            <button onClick={() => saveData('securityData', securityData)} className="mt-6 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Security Settings</button>
+                             <div className="bg-bg-secondary p-6 rounded-lg border border-border-color">
+                                <h3 className="text-xl font-semibold mb-4 text-accent-primary">AI Feature Settings</h3>
+                                <ToggleSwitch 
+                                    label="Enable AI Image Editing"
+                                    checked={aiFeaturesConfig.imageEditingEnabled}
+                                    onChange={e => setAiFeaturesConfig(prev => ({...prev, imageEditingEnabled: e.target.checked}))}
+                                />
+                                <p className="text-xs text-slate-400 mt-2">This toggles the "Edit with AI" button for all images in the admin panel. Requires a valid API key to be set.</p>
+                            </div>
+                            <button onClick={() => { saveData('securityData', securityData); saveData('aiFeaturesConfig', aiFeaturesConfig); }} className="mt-6 btn-admin btn-admin-primary">Save Settings</button>
                         </div>
                     )}
                   </main>
