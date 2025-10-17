@@ -20,10 +20,21 @@
         --accent-secondary: #d400ff;
         --border-color: rgba(67, 60, 119, 0.3);
       }
+      html.light-theme {
+        --bg-primary: #f4f7fc;
+        --bg-secondary: #ffffff;
+        --bg-glass: rgba(255, 255, 255, 0.6);
+        --text-primary: #1f2937;
+        --text-secondary: #4b5563;
+        --accent-primary: #0891b2;
+        --accent-secondary: #9333ea;
+        --border-color: rgba(0, 0, 0, 0.1);
+      }
       body {
         font-family: 'DM Sans', sans-serif;
         background-color: var(--bg-primary);
         color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
       .font-heading { font-family: 'Exo 2', sans-serif; }
       .text-gradient { background-clip: text; -webkit-background-clip: text; color: transparent; }
@@ -32,11 +43,11 @@
       ::-webkit-scrollbar { width: 8px; }
       ::-webkit-scrollbar-track { background: var(--bg-secondary); }
       ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 10px; }
-      ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #5affff, #e56eff); }
       
       .chatbot-messages::-webkit-scrollbar { width: 6px; }
       .chatbot-messages::-webkit-scrollbar-track { background: #2a2846; }
       .chatbot-messages::-webkit-scrollbar-thumb { background: var(--accent-secondary); border-radius: 10px; }
+      html.light-theme .chatbot-messages::-webkit-scrollbar-track { background: #e2e8f0; }
       
       @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
       .animate-gradient { background-size: 200% 200%; animation: gradient-animation 20s ease infinite; }
@@ -49,13 +60,25 @@
 
       .glow-on-hover { transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out; }
       .glow-on-hover:hover { transform: translateY(-2px); box-shadow: 0 0 15px var(--accent-primary), 0 0 30px var(--accent-secondary); }
+      html.light-theme .glow-on-hover:hover { box-shadow: 0 0 15px rgba(8, 145, 178, 0.4), 0 0 30px rgba(147, 51, 234, 0.3); }
       
       #hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.6; }
+      html.light-theme #hero-canvas { opacity: 0.3; }
 
       #preloader { position: fixed; inset: 0; background-color: var(--bg-primary); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
       #preloader.loaded { opacity: 0; pointer-events: none; }
       @keyframes preloader-spin { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
       .loader-shape { width: 60px; height: 60px; border: 4px solid transparent; border-top-color: var(--accent-primary); border-right-color: var(--accent-secondary); border-radius: 50%; animation: preloader-spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; }
+
+      /* Light theme specific overrides for tailwind classes */
+      html.light-theme .text-white { color: var(--text-primary); }
+      html.light-theme .hover\:text-white:hover { color: var(--text-primary); }
+      html.light-theme .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
+      html.light-theme button.text-black, html.light-theme a.text-black { color: #fff; }
+      html.light-theme .bg-slate-700 { background-color: #e5e7eb; color: var(--text-primary); }
+      html.light-theme input::placeholder, html.light-theme textarea::placeholder { color: var(--text-secondary); }
+      html.light-theme .border-slate-600 { border-color: #d1d5db; }
+      html.light-theme .bg-slate-900\/50 { background-color: rgba(226, 232, 240, 0.5); }
     </style>
     <!-- React, Babel, and Three.js -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -78,7 +101,7 @@
     <div id="preloader"><div class="loader-shape"></div></div>
     <div id="root"></div>
     <script type="text/babel" data-type="module">
-      import { GoogleGenAI } from '@google/genai';
+      import { GoogleGenAI, Type } from '@google/genai';
       import * as THREE from 'three';
       
       // --- HOOKS ---
@@ -104,7 +127,7 @@
         } catch (error) { console.error(`Error loading ${key}:`, error); return defaultValue; }
       };
 
-      const personalInfoDefault = { name: 'Sairam Mashetty', title: 'Associate Claims', summary: `As a detail-oriented Claims Associate, I specialize in ensuring insurance claims are handled accurately and efficiently. I'm skilled at investigating details, managing records, and navigating industry rules to support my team and deliver great results. I'm passionate about my work and always looking for ways to improve.`, email: 'sairammashetty@gmail.com', phone: '+91 9381094860', location: 'Hyderabad, Telangana, India.', linkedin: 'https://www.linkedin.com/in/sairam-mashetty', profileImageUrl: 'https://i.imgur.com/62GgIIL.png', contactIntro: "I'm open to new opportunities and collaborations. Feel free to reach out via email or phone.", };
+      const personalInfoDefault = { name: 'Sairam Mashetty', title: 'Associate Claims', summary: `As a detail-oriented Claims Associate, I specialize in ensuring insurance claims are handled accurately and efficiently. I'm skilled at investigating details, managing records, and navigating industry rules to support my team and deliver great results. I'm passionate about my work and always looking for ways to improve.`, email: 'sairammashetty@gmail.com', phone: '+91 9381094860', location: 'Hyderabad, Telangana, India.', linkedin: 'https://www.linkedin.com/in/sairam-mashetty', profileImageUrl: 'https://i.imgur.com/62GgIIL.png', contactIntro: "I'm open to new opportunities and collaborations. Feel free to reach out via email or phone.", cvUrl: './sairam-mashetty-resume.pdf', showCvButton: true, notificationMethod: 'email', notificationPhone: '' };
       const educationDataDefault = { degree: 'Bachelor of Commerce (Computers)', institution: 'Sri Vijaya Sai Degree College, Telangana University', duration: '2018 - 2021', gpa: '8.6' };
       const navLinksDefault = [{ name: 'About', href: '#about' }, { name: 'Experience', href: '#experience' }, { name: 'Skills', href: '#skills' }, { name: 'Awards', href: '#awards' }, { name: 'Contact', href: '#contact' }];
       const sectionsDefault = [{ id: 'about', title: 'About', visible: true }, { id: 'experience', title: 'Experience', visible: true }, { id: 'skills', title: 'Skills', visible: true }, { id: 'awards', title: 'Awards', visible: true }, { id: 'projects', title: 'Projects', visible: false }, { id: 'certifications', title: 'Certifications', visible: false }, { id: 'articles', title: 'Articles', visible: true }, { id: 'contact', title: 'Contact', visible: true }];
@@ -126,10 +149,13 @@
       const ChatIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>);
       const CloseIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>);
       const SendIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>);
-      
+      const SunIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM12 9c1.65 0 3 1.35 3 3s-1.35 3-3 3-3-1.35-3-3 1.35-3 3-3zm0-7c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1s-1-.45-1-1V3c0-.55.45-1 1-1zm0 18c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1zm-8-9c-.55 0-1-.45-1-1H1c-.55 0-1-.45-1-1s.45-1 1-1h2c.55 0 1 .45 1 1s-.45 1-1 1zm18 0c-.55 0-1-.45-1-1h-2c-.55 0-1-.45-1-1s.45-1 1-1h2c.55 0 1 .45 1 1s-.45 1-1 1zM5.64 5.64c-.39-.39-1.02-.39-1.41 0s-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0s.39-1.02 0-1.41L5.64 5.64zm12.72 12.72c-.39-.39-1.02-.39-1.41 0s-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0s.39-1.02 0-1.41l-1.41-1.41zM5.64 18.36c.39-.39.39-1.02 0-1.41s-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41s1.02.39 1.41 0l1.41-1.41zm12.72-12.72c.39-.39.39-1.02 0-1.41s-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41s1.02.39 1.41 0l1.41-1.41z"/></svg>);
+      const MoonIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" /></svg>);
+      const DownloadIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>);
+
       // --- COMPONENTS ---
       
-      const Header = ({ personalInfo, navLinks }) => {
+      const Header = ({ personalInfo, navLinks, theme, toggleTheme }) => {
         const [scrolled, setScrolled] = useState(false);
         const [activeSection, setActiveSection] = useState('');
 
@@ -156,16 +182,21 @@
               <a href="#" className="text-2xl font-bold bg-gradient-accent text-gradient font-heading">
                 {personalInfo.name.split(' ')[0][0]}{personalInfo.name.split(' ')[1][0]}
               </a>
-              <ul className="hidden md:flex items-center space-x-8">
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <a href={link.href} className={`relative text-lg font-medium text-text-primary/80 hover:text-white transition-colors duration-300 ${activeSection === link.href.substring(1) ? 'text-accent-primary' : ''}`}>
-                      {link.name}
-                      <span className={`absolute left-0 -bottom-1 w-full h-0.5 bg-accent-primary transform transition-transform duration-300 ${activeSection === link.href.substring(1) ? 'scale-x-100' : 'scale-x-0'}`}></span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div className="hidden md:flex items-center">
+                <ul className="flex items-center space-x-8">
+                  {navLinks.map((link) => (
+                    <li key={link.href}>
+                      <a href={link.href} className={`relative text-lg font-medium text-text-primary/80 hover:text-text-primary transition-colors duration-300 ${activeSection === link.href.substring(1) ? 'text-accent-primary' : ''}`}>
+                        {link.name}
+                        <span className={`absolute left-0 -bottom-1 w-full h-0.5 bg-accent-primary transform transition-transform duration-300 ${activeSection === link.href.substring(1) ? 'scale-x-100' : 'scale-x-0'}`}></span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                 <button onClick={toggleTheme} className="ml-8 p-2 rounded-full text-text-primary hover:bg-bg-glass focus:outline-none focus:ring-2 ring-offset-2 ring-offset-bg-primary ring-accent-primary" aria-label="Toggle theme">
+                    {theme === 'dark' ? <SunIcon className="w-6 h-6 text-yellow-300" /> : <MoonIcon className="w-6 h-6 text-slate-500" />}
+                </button>
+              </div>
             </nav>
           </header>
         );
@@ -251,10 +282,15 @@
                 <h2 className="text-2xl lg:text-3xl font-semibold bg-gradient-accent text-gradient mb-8">
                   {personalInfo.title}
                 </h2>
-                <div className="flex justify-center md:justify-start gap-4">
-                   <a href="#contact" className="text-white bg-gradient-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 transform hover:scale-105 glow-on-hover">
+                <div className="flex justify-center md:justify-start gap-4 flex-wrap">
+                   <a href="#contact" className="text-black bg-gradient-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 transform hover:scale-105 glow-on-hover">
                     Get In Touch
                   </a>
+                  {personalInfo.showCvButton && personalInfo.cvUrl && (
+                     <a href={personalInfo.cvUrl} download className="text-white bg-transparent border-2 border-accent-secondary hover:bg-accent-secondary/20 focus:ring-4 focus:outline-none focus:ring-purple-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 flex items-center gap-2">
+                        <DownloadIcon className="w-5 h-5"/> Download CV
+                     </a>
+                  )}
                   <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="text-white bg-transparent border-2 border-accent-primary hover:bg-accent-primary/20 focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 flex items-center gap-2">
                     <LinkedInIcon className="w-5 h-5"/> LinkedIn
                   </a>
@@ -476,6 +512,61 @@
 
       const Contact = ({ personalInfo }) => {
         const [ref, isVisible] = useOnScreen({ threshold: 0.2 });
+        const [formStatus, setFormStatus] = useState({ status: 'idle', message: '' }); // idle, submitting, success, error
+        const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+
+        const handleInputChange = (e) => {
+          const { name, value } = e.target;
+          setFormData(prev => ({ ...prev, [name]: value }));
+        };
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          if (!formData.name || !formData.email || !formData.message) return;
+          if (!process.env.API_KEY) {
+              setFormStatus({ status: 'error', message: 'Contact form is currently disabled. Please reach out via email directly.' });
+              return;
+          }
+          setFormStatus({ status: 'submitting', message: '' });
+
+          try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            
+            const sendEmailDeclaration = { name: 'send_email', parameters: { type: Type.OBJECT, properties: { to: { type: Type.STRING }, from_name: { type: Type.STRING }, from_email: { type: Type.STRING }, message: { type: Type.STRING } }, required: ['to', 'from_name', 'from_email', 'message'] } };
+            const sendSmsDeclaration = { name: 'send_sms', parameters: { type: Type.OBJECT, properties: { to_phone: { type: Type.STRING }, from_name: { type: Type.STRING }, message: { type: Type.STRING } }, required: ['to_phone', 'from_name', 'message'] } };
+            
+            const targetPhone = personalInfo.notificationPhone || personalInfo.phone;
+            const prompt = `A user, ${formData.name} (${formData.email}), has submitted the following message through the portfolio contact form: "${formData.message}". The portfolio owner, ${personalInfo.name}, has requested to be notified via ${personalInfo.notificationMethod}. Please call the appropriate function to send this notification. The owner's email is ${personalInfo.email} and their phone number is ${targetPhone}.`;
+
+            const response = await ai.models.generateContent({
+              model: 'gemini-2.5-flash',
+              contents: prompt,
+              config: { tools: [{ functionDeclarations: [sendEmailDeclaration, sendSmsDeclaration] }] },
+            });
+
+            const functionCall = response.functionCalls && response.functionCalls[0];
+            if (functionCall) {
+                if (functionCall.name === 'send_email') {
+                    setFormStatus({ status: 'success', message: `Thank you! Your message has been sent, and ${personalInfo.name.split(' ')[0]} will be notified by email.` });
+                } else if (functionCall.name === 'send_sms') {
+                    setFormStatus({ status: 'success', message: `Thank you! Your message has been sent, and ${personalInfo.name.split(' ')[0]} will be notified by SMS.` });
+                } else {
+                    setFormStatus({ status: 'success', message: "Thank you for your message! I'll get back to you shortly." });
+                }
+            } else {
+              throw new Error("AI did not return a function call.");
+            }
+          } catch (error) {
+            console.error("Gemini Function Call Error:", error);
+            setFormStatus({ status: 'error', message: "Sorry, something went wrong. Please try again or email me directly." });
+          }
+        };
+
+        const resetForm = () => {
+          setFormData({ name: '', email: '', message: '' });
+          setFormStatus({ status: 'idle', message: '' });
+        };
+
         return (
           <Section id="contact" title="Contact" titleAccent="Me">
             <div ref={ref} className={`max-w-5xl mx-auto grid md:grid-cols-2 gap-12 bg-bg-glass backdrop-blur-lg p-8 md:p-12 rounded-2xl shadow-2xl border border-border-color fade-in-up ${isVisible ? 'visible' : ''}`}>
@@ -488,21 +579,39 @@
                    <div className="flex items-center space-x-4"><LocationIcon className="w-6 h-6 text-accent-primary"/><span className="text-text-primary">{personalInfo.location}</span></div>
                 </div>
               </div>
-              <form action={`mailto:${personalInfo.email}`} method="post" encType="text/plain">
-                <div className="relative z-0 w-full mb-6 group">
-                    <input type="text" name="name" id="floating_name" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer" placeholder=" " required />
-                    <label htmlFor="floating_name" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Full Name</label>
-                </div>
-                 <div className="relative z-0 w-full mb-6 group">
-                    <input type="email" name="email" id="floating_email" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer" placeholder=" " required />
-                    <label htmlFor="floating_email" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
-                </div>
-                 <div className="relative z-0 w-full mb-6 group">
-                    <textarea name="message" id="floating_message" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer min-h-[100px]" placeholder=" " required></textarea>
-                    <label htmlFor="floating_message" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Your Message</label>
-                </div>
-                <button type="submit" className="text-black bg-gradient-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-bold rounded-lg text-sm w-full sm:w-auto px-8 py-3 text-center transition-all duration-300 transform hover:scale-105">Send Message</button>
-              </form>
+               <div className="min-h-[400px] flex flex-col justify-center">
+                  {formStatus.status === 'idle' || formStatus.status === 'submitting' ? (
+                     <form onSubmit={handleSubmit}>
+                        <div className="relative z-0 w-full mb-6 group">
+                           <input type="text" name="name" id="floating_name" value={formData.name} onChange={handleInputChange} className="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer" placeholder=" " required />
+                           <label htmlFor="floating_name" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Full Name</label>
+                        </div>
+                        <div className="relative z-0 w-full mb-6 group">
+                           <input type="email" name="email" id="floating_email" value={formData.email} onChange={handleInputChange} className="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer" placeholder=" " required />
+                           <label htmlFor="floating_email" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
+                        </div>
+                        <div className="relative z-0 w-full mb-6 group">
+                           <textarea name="message" id="floating_message" value={formData.message} onChange={handleInputChange} className="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-slate-600 appearance-none focus:outline-none focus:ring-0 focus:border-accent-primary peer min-h-[100px]" placeholder=" " required></textarea>
+                           <label htmlFor="floating_message" className="peer-focus:font-medium absolute text-sm text-text-secondary duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-accent-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Your Message</label>
+                        </div>
+                        <button type="submit" disabled={formStatus.status === 'submitting'} className="text-black bg-gradient-accent hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-cyan-300/50 font-bold rounded-lg text-sm w-full sm:w-auto px-8 py-3 text-center transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed">
+                           {formStatus.status === 'submitting' ? 'Sending...' : 'Send Message'}
+                        </button>
+                     </form>
+                  ) : formStatus.status === 'success' ? (
+                     <div className="text-center bg-green-500/10 border border-green-500 text-green-300 p-8 rounded-lg flex flex-col items-center justify-center h-full">
+                        <h3 className="text-2xl font-bold mb-4 text-white">Message Sent!</h3>
+                        <p>{formStatus.message}</p>
+                        <button onClick={resetForm} className="mt-6 bg-accent-primary text-black font-bold py-2 px-6 rounded-lg hover:opacity-80 transition-opacity">Send another message</button>
+                     </div>
+                  ) : ( // error
+                     <div className="text-center bg-red-500/10 border border-red-500 text-red-300 p-8 rounded-lg flex flex-col items-center justify-center h-full">
+                        <h3 className="text-2xl font-bold mb-4 text-white">Something went wrong!</h3>
+                        <p>{formStatus.message}</p>
+                        <button onClick={resetForm} className="mt-6 bg-accent-primary text-black font-bold py-2 px-6 rounded-lg hover:opacity-80 transition-opacity">Try Again</button>
+                     </div>
+                  )}
+               </div>
             </div>
           </Section>
         );
@@ -577,7 +686,7 @@
                   <div ref={messagesEndRef} />
                 </div>
                 <form onSubmit={handleSendMessage} className="p-3 border-t border-border-color flex items-center gap-2">
-                  <input name="message" type="text" placeholder="Ask a question..." className="w-full bg-slate-700 border-slate-600 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm text-white" disabled={isLoading} />
+                  <input name="message" type="text" placeholder="Ask a question..." className="w-full bg-slate-700 border-slate-600 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm" disabled={isLoading} />
                   <button type="submit" className="p-2 rounded-full bg-accent-primary text-black hover:opacity-80 disabled:opacity-50 transition-colors" disabled={isLoading}><SendIcon className="w-5 h-5"/></button>
                 </form>
               </div>
@@ -647,8 +756,10 @@
           const handleRemoveItem = (setter, index) => setter(prev => prev.filter((_, i) => i !== index));
           
           const AIGenerateButton = ({ fieldKey, prompt, currentValue, onGenerated }) => (<button type="button" onClick={() => handleGenerateAI(fieldKey, prompt, currentValue, onGenerated)} disabled={isGenerating} className="ml-2 p-2 bg-gradient-accent rounded-md text-black hover:opacity-90 disabled:opacity-50 disabled:cursor-wait transition-opacity flex items-center text-sm"><MagicWandIcon className="w-4 h-4 mr-2" />{isGenerating && generatingKey === fieldKey ? '...' : 'Enhance'}</button>);
-          const renderInput = (label, value, onChange, type = "text") => (<div className="mb-4"><label className="block text-slate-300 text-sm font-bold mb-2">{label}</label><input type={type} value={value} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-accent-primary"/></div>);
+          const renderInput = (label, value, onChange, type = "text", props) => (<div className="mb-4"><label className="block text-slate-300 text-sm font-bold mb-2">{label}</label><input type={type} value={value} onChange={onChange} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-accent-primary" {...props}/></div>);
           const renderTextarea = (label, value, onChange, aiOptions = null) => (<div className="mb-4"><div className="flex justify-between items-center mb-2"><label className="block text-slate-300 text-sm font-bold">{label}</label>{aiOptions && <AIGenerateButton {...aiOptions} />}</div><textarea value={value} onChange={onChange} rows={5} className="shadow appearance-none border rounded w-full py-2 px-3 bg-slate-700 border-slate-600 text-white leading-tight focus:outline-none focus:shadow-outline focus:border-accent-primary min-h-[120px]"/></div>);
+          const ToggleSwitch = ({ label, checked, onChange }) => (<div className="flex items-center justify-between my-4 py-2"><span className="text-slate-300 font-bold">{label}</span><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" /><div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-secondary"></div></label></div>);
+          const RadioGroup = ({ label, name, options, value, onChange }) => (<div className="mb-4"><label className="block text-slate-300 text-sm font-bold mb-2">{label}</label><div className="flex gap-4">{options.map(opt => (<label key={opt.value} className="flex items-center"><input type="radio" name={name} value={opt.value} checked={value === opt.value} onChange={onChange} className="w-4 h-4 text-accent-secondary bg-slate-600 border-slate-500 focus:ring-accent-secondary focus:ring-2" /> <span className="ml-2 text-white">{opt.label}</span></label>))}</div></div>);
 
           if (!isLoggedIn) {
             return (
@@ -711,8 +822,25 @@
                                   {renderInput("Location", personalInfo.location, e => setPersonalInfo({...personalInfo, location: e.target.value}))}
                                   {renderInput("LinkedIn URL", personalInfo.linkedin, e => setPersonalInfo({...personalInfo, linkedin: e.target.value}), "url")}
                                   {renderInput("Profile Image URL", personalInfo.profileImageUrl, e => setPersonalInfo({...personalInfo, profileImageUrl: e.target.value}), "url")}
+                                  {renderInput("CV URL", personalInfo.cvUrl, e => setPersonalInfo({...personalInfo, cvUrl: e.target.value}), "text")}
+                                  <ToggleSwitch label="Show CV Download Button" checked={!!personalInfo.showCvButton} onChange={e => setPersonalInfo({...personalInfo, showCvButton: e.target.checked})} />
                                   {renderTextarea("Summary", personalInfo.summary, e => setPersonalInfo({...personalInfo, summary: e.target.value}), { fieldKey: 'summary', prompt: "Rewrite this summary for a Claims Associate's portfolio.", currentValue: personalInfo.summary, onGenerated: (newText) => setPersonalInfo({...personalInfo, summary: newText})})}
                                   {renderTextarea("Contact Intro", personalInfo.contactIntro, e => setPersonalInfo({...personalInfo, contactIntro: e.target.value}), { fieldKey: 'contactIntro', prompt: "Rewrite this contact section intro text.", currentValue: personalInfo.contactIntro, onGenerated: (newText) => setPersonalInfo({...personalInfo, contactIntro: newText})})}
+                                  
+                                  <div className="mt-6 pt-6 border-t border-border-color">
+                                    <h3 className="text-xl font-semibold mb-4 text-accent-primary">Contact Form Notifications</h3>
+                                    <RadioGroup
+                                      label="Receive notifications via:"
+                                      name="notificationMethod"
+                                      value={personalInfo.notificationMethod || 'email'}
+                                      onChange={e => setPersonalInfo({...personalInfo, notificationMethod: e.target.value})}
+                                      options={[{label: 'Email', value: 'email'}, {label: 'SMS', value: 'sms'}]}
+                                    />
+                                    {personalInfo.notificationMethod === 'sms' && (
+                                       renderInput("Notification Phone Number", personalInfo.notificationPhone, e => setPersonalInfo({...personalInfo, notificationPhone: e.target.value}), "tel", { placeholder: personalInfo.phone })
+                                    )}
+                                  </div>
+                                  
                                   <button onClick={() => saveData('personalInfo', personalInfo)} className="mt-4 bg-accent-primary hover:opacity-80 text-black font-bold py-2 px-4 rounded">Save Personal</button>
                               </div>
                               <div className="bg-bg-secondary p-6 rounded-lg border border-border-color">
@@ -734,24 +862,52 @@
       
       const App = () => {
         const [isAdminView, setIsAdminView] = useState(window.location.hash === '#admin');
+        const [theme, setTheme] = useState(localStorage.getItem('portfolio-theme') || 'dark');
         const [appData, setAppData] = useState({
             personalInfo: loadData('personalInfo', personalInfoDefault), navLinks: navLinksDefault, sections: loadData('sectionsConfig', sectionsDefault), educationData: loadData('educationData', educationDataDefault), experienceData: loadData('experienceData', experienceDataDefault), skillsData: loadData('skillsData', skillsDataDefault), awardsData: loadData('awardsData', awardsDataDefault), articlesData: loadData('articlesData', articlesDataDefault), projectsData: loadData('projectsData', projectsDataDefault), certificationsData: loadData('certificationsData', certificationsDataDefault),
         });
 
+        const toggleTheme = useCallback(() => {
+          setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+        }, []);
+
+        useEffect(() => {
+          if (theme === 'light') {
+            document.documentElement.classList.add('light-theme');
+          } else {
+            document.documentElement.classList.remove('light-theme');
+          }
+          localStorage.setItem('portfolio-theme', theme);
+        }, [theme]);
+        
         useEffect(() => {
           const preloader = document.getElementById('preloader');
           if (preloader) {
-            window.addEventListener('load', () => { preloader.classList.add('loaded'); });
+            setTimeout(() => preloader.classList.add('loaded'), 100);
           }
           const handleHashChange = () => setIsAdminView(window.location.hash === '#admin');
-          const handleStorageChange = () => {
-             setAppData({
-                personalInfo: loadData('personalInfo', personalInfoDefault), navLinks: navLinksDefault, sections: loadData('sectionsConfig', sectionsDefault), educationData: loadData('educationData', educationDataDefault), experienceData: loadData('experienceData', experienceDataDefault), skillsData: loadData('skillsData', skillsDataDefault), awardsData: load-data('awardsData', awardsDataDefault), articlesData: loadData('articlesData', articlesDataDefault), projectsData: loadData('projectsData', projectsDataDefault), certificationsData: loadData('certificationsData', certificationsDataDefault),
-            });
+          const handleStorageChange = (e) => {
+             // Use a more specific check
+             if (e.key === 'personalInfo' || e.key === 'sectionsConfig' || e.key === 'experienceData') { // Add other keys as needed
+                setAppData(prevData => ({...prevData,
+                    personalInfo: loadData('personalInfo', personalInfoDefault),
+                    sections: loadData('sectionsConfig', sectionsDefault),
+                    educationData: loadData('educationData', educationDataDefault),
+                    experienceData: loadData('experienceData', experienceDataDefault),
+                    skillsData: loadData('skillsData', skillsDataDefault),
+                    awardsData: loadData('awardsData', awardsDataDefault),
+                    articlesData: loadData('articlesData', articlesDataDefault),
+                    projectsData: loadData('projectsData', projectsDataDefault),
+                    certificationsData: loadData('certificationsData', certificationsDataDefault),
+                }));
+             }
           };
           window.addEventListener('hashchange', handleHashChange, false);
           window.addEventListener('storage', handleStorageChange);
-          return () => { window.removeEventListener('hashchange', handleHashChange, false); window.removeEventListener('storage', handleStorageChange); };
+          return () => {
+            window.removeEventListener('hashchange', handleHashChange, false);
+            window.removeEventListener('storage', handleStorageChange);
+          };
         }, []);
 
         if (isAdminView) { return <Admin />; }
@@ -763,7 +919,7 @@
 
         return (
           <>
-            <Header personalInfo={appData.personalInfo} navLinks={appData.navLinks} />
+            <Header personalInfo={appData.personalInfo} navLinks={appData.navLinks} theme={theme} toggleTheme={toggleTheme} />
             <main>
               <Hero personalInfo={appData.personalInfo} />
               {visibleSections.map(section => <React.Fragment key={section.id}>{sectionComponentMap[section.id]}</React.Fragment>)}
