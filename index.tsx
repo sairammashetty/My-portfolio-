@@ -54,9 +54,9 @@ const experienceDataDefault = [{ id: 1, date: '09/2022 - Present', title: 'Assoc
 const skillsDataDefault = [{ name: 'Claims Investigation', level: 95, visible: true }, { name: 'Policy Analysis', level: 90, visible: true }, { name: 'MS Office Suite', level: 92, visible: true }, { name: 'Regulatory Compliance', level: 88, visible: true }, { name: 'Data Accuracy', level: 98, visible: true }, { name: 'Clear Communication', level: 92, visible: true }, { name: 'Problem Solving', level: 90, visible: true }];
 const awardsDataDefault = [{ id: 1, name: 'Impact Award', date: 'September 2024', description: 'Recognized with the Impact Award for consistently delivering outstanding performance and exceeding expectations.', visible: true }, { id: 2, name: 'Impact Award', date: 'January 2024', description: 'Honored for exceptional contributions and a proactive approach to resolving complex claim discrepancies.', visible: true }, { id: 3, name: 'Impact Award', date: 'March 2023', description: 'Awarded for meticulous investigation skills and a commitment to ensuring accuracy in claims processing.', visible: true }];
 const articlesDataDefault = [
-    { id: 1, title: "AI's Role in Revolutionizing Insurance Claims", description: "A deep dive by McKinsey & Company into how AI is streamlining claims processing, reducing fraud, and enhancing customer experiences.", imageUrl: 'https://picsum.photos/seed/claims-future/600/400', showImage: true, category: 'AI in Insurance', link: 'https://www.mckinsey.com/industries/financial-services/our-insights/the-future-at-hyper-scale-the-claims-organization-of-2030', visible: true },
-    { id: 2, title: 'Top Health Industry Issues of 2024: Reinventing the System', description: "PwC's report on significant trends facing the healthcare industry, including workforce strategy, affordability, and new technologies.", imageUrl: 'https://picsum.photos/seed/healthcare-regs/600/400', showImage: true, category: 'Healthcare Trends', link: 'https://www.pwc.com/us/en/industries/health-industries/library/top-health-industry-issues.html', visible: true },
-    { id: 3, title: 'The Imperative for Quality Data in Healthcare', description: 'An overview from HIMSS on why data integrity is foundational for improving patient outcomes and operational efficiency.', imageUrl: 'https://picsum.photos/seed/data-accuracy/600/400', showImage: true, category: 'Data & Analytics', link: 'https://www.himss.org/resources/importance-data-quality-healthcare', visible: true }
+    { id: 1, title: "AI's Role in Revolutionizing Insurance Claims", description: "Explore Deloitte's analysis on how AI is transforming insurance claims management, improving efficiency, and customer satisfaction.", imageUrl: 'https://picsum.photos/seed/claims-future/600/400', showImage: true, category: 'AI in Insurance', link: 'https://www2.deloitte.com/us/en/insights/industry/financial-services/ai-in-insurance-claims-management.html', visible: true },
+    { id: 2, title: 'Top Health Industry Issues of 2024: Reinventing the System', description: "PwC's report on significant trends facing the healthcare industry, including workforce strategy, affordability, and new technologies.", imageUrl: 'https://picsum.photos/seed/healthcare-regs/600/400', showImage: true, category: 'Healthcare Trends', link: 'https://www.pwc.com/us/en/industries/health-industries/library/top-health-industry-issues-of-2024.html', visible: true },
+    { id: 3, title: 'The Imperative for Quality Data in Healthcare', description: "An NEJM Catalyst article discussing the critical role of high-quality data in transforming healthcare delivery and patient outcomes.", imageUrl: 'https://picsum.photos/seed/data-accuracy/600/400', showImage: true, category: 'Data & Analytics', link: 'https://catalyst.nejm.org/doi/full/10.1056/CAT.18.0290', visible: true }
 ];
 const projectsDataDefault: any[] = [];
 const certificationsDataDefault: any[] = [];
@@ -238,6 +238,7 @@ const Header = ({ personalInfo, navLinks, theme, toggleTheme }: { personalInfo: 
 
 const Hero = ({ personalInfo }: { personalInfo: any }) => {
   const [ref, isVisible] = useOnScreen({ threshold: 0.3 });
+  const isCvDataUrl = personalInfo.cvUrl?.startsWith('data:');
   
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-bg-primary">
@@ -257,7 +258,7 @@ const Hero = ({ personalInfo }: { personalInfo: any }) => {
               Get In Touch
             </a>
             {personalInfo.showCvButton && personalInfo.cvUrl && (
-               <a href={personalInfo.cvUrl} download="Sairam_Mashetty_CV.pdf" target="_blank" rel="noopener noreferrer" className="text-white bg-transparent border-2 border-accent-secondary hover:bg-accent-secondary/20 focus:ring-4 focus:outline-none focus:ring-purple-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 flex items-center gap-2">
+               <a href={personalInfo.cvUrl} download="Sairam_Mashetty_CV.pdf" target={isCvDataUrl ? '_self' : '_blank'} rel="noopener noreferrer" className="text-white bg-transparent border-2 border-accent-secondary hover:bg-accent-secondary/20 focus:ring-4 focus:outline-none focus:ring-purple-300/50 font-medium rounded-lg text-base px-6 py-3 text-center transition-all duration-300 flex items-center gap-2">
                   <DownloadIcon className="w-5 h-5"/> Download CV
                </a>
             )}
@@ -300,7 +301,7 @@ const About = ({ personalInfo, educationData }: { personalInfo: any, educationDa
     const [educationRef, isEducationVisible] = useOnScreen({ threshold: 0.3 });
     return (
       <Section id="about" title="About" titleAccent="Me">
-        <ThreeJSBackground type="dodecahedron" className="section-3d-bg" />
+        <ThreeJSBackground type="crystal" className="section-3d-bg" />
         <p ref={summaryRef} className={`max-w-3xl mx-auto text-center text-text-secondary text-lg mb-16 fade-in-up ${isSummaryVisible ? 'visible' : ''}`}>
           {personalInfo.summary}
         </p>
@@ -543,7 +544,7 @@ const Contact = ({ personalInfo }: { personalInfo: any }) => {
 
   return (
     <Section id="contact" title="Contact" titleAccent="Me">
-      <ThreeJSBackground type="sphere" className="section-3d-bg" />
+      <ThreeJSBackground type="crystal" className="section-3d-bg" />
       <div ref={ref} className={`max-w-5xl mx-auto grid md:grid-cols-2 gap-12 fade-in-up ${isVisible ? 'visible' : ''}`}>
         <div className="flex flex-col justify-center space-y-8">
           <h3 className="text-3xl font-bold text-white font-heading">Let's Connect</h3>
@@ -942,7 +943,38 @@ const Admin = () => {
                             {renderInput("Location", personalInfo.location, e => setPersonalInfo({...personalInfo, location: e.target.value}))}
                             {renderInput("LinkedIn URL", personalInfo.linkedin, e => setPersonalInfo({...personalInfo, linkedin: e.target.value}), "url")}
                             <ImageInput label="Profile Image" imageUrl={personalInfo.profileImageUrl} onUrlChange={e => setPersonalInfo({...personalInfo, profileImageUrl: e.target.value})} onFileChange={async e => setPersonalInfo({...personalInfo, profileImageUrl: await fileToBase64(e.target.files![0]) as string})} onAiEdit={() => openAiModal(personalInfo.profileImageUrl, (newImg) => setPersonalInfo({...personalInfo, profileImageUrl: newImg}))} showImageToggle={true} isImageShown={!!personalInfo.showProfileImage} onImageToggleChange={e => setPersonalInfo({...personalInfo, showProfileImage: e.target.checked})} />
-                            {renderInput("CV URL", personalInfo.cvUrl, e => setPersonalInfo({...personalInfo, cvUrl: e.target.value}))}
+                            <div className="mb-4">
+                                <label className="block admin-label text-sm font-bold mb-2">CV (URL or Upload)</label>
+                                <input
+                                    type="text"
+                                    value={personalInfo.cvUrl || ''}
+                                    onChange={e => setPersonalInfo({...personalInfo, cvUrl: e.target.value})}
+                                    placeholder="Paste public URL or upload below"
+                                    className="shadow appearance-none border rounded w-full py-2 px-3 admin-input admin-text leading-tight focus:outline-none focus:shadow-outline focus:border-accent-primary mb-2"
+                                />
+                                <label className="w-full text-center cursor-pointer bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded text-sm transition-colors block">
+                                    Upload PDF File
+                                    <input
+                                        type="file"
+                                        accept=".pdf"
+                                        className="hidden"
+                                        onChange={async (e) => {
+                                            if (e.target.files?.[0]) {
+                                                const file = e.target.files[0];
+                                                if (file.type !== 'application/pdf') {
+                                                    alert('Please upload a valid PDF file.');
+                                                    return;
+                                                }
+                                                const base64Url = await fileToBase64(file) as string;
+                                                setPersonalInfo(prev => ({ ...prev, cvUrl: base64Url }));
+                                            }
+                                        }}
+                                    />
+                                </label>
+                                {personalInfo.cvUrl && (
+                                    <a href={personalInfo.cvUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-accent-primary hover:underline mt-2 inline-block">View Current CV</a>
+                                )}
+                            </div>
                             <ToggleSwitch label="Show CV Download Button" checked={!!personalInfo.showCvButton} onChange={e => setPersonalInfo({...personalInfo, showCvButton: e.target.checked})} />
                             {renderTextarea("Summary", personalInfo.summary, e => setPersonalInfo({...personalInfo, summary: e.target.value}), { fieldKey: 'summary', prompt: "Rewrite this summary for a Claims Associate's portfolio.", currentValue: personalInfo.summary, onGenerated: (newText: string) => setPersonalInfo({...personalInfo, summary: newText})})}
                             {renderTextarea("Contact Intro", personalInfo.contactIntro, e => setPersonalInfo({...personalInfo, contactIntro: e.target.value}), { fieldKey: 'contactIntro', prompt: "Rewrite this contact section intro text.", currentValue: personalInfo.contactIntro, onGenerated: (newText: string) => setPersonalInfo({...personalInfo, contactIntro: newText})})}
