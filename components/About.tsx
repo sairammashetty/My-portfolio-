@@ -27,7 +27,7 @@ const About: React.FC = () => {
                     <p className="text-slate-400 mt-2">{educationData.duration}</p>
                     <p className="text-slate-400 mt-1">GPA: {educationData.gpa}</p>
                 </div>
-                 <div ref={ref} className={`fade-in-up ${isVisible ? 'visible' : ''} style={{transitionDelay: '200ms'}}`}>
+                 <div ref={ref} className={`fade-in-up ${isVisible ? 'visible' : ''}`} style={{transitionDelay: '200ms'}}>
                     <img src="https://picsum.photos/seed/education/500/300" alt="Education" className="rounded-lg shadow-lg" />
                 </div>
             </div>

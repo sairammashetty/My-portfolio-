@@ -80,6 +80,17 @@ const Admin: React.FC = () => {
         }
     };
 
+    const handleSaveCurrentTab = () => {
+        switch(activeTab) {
+            case 'experience': saveData('experienceData', experienceData); break;
+            case 'skills': saveData('skillsData', skillsData); break;
+            case 'awards': saveData('awardsData', awardsData); break;
+            case 'projects': saveData('projectsData', projectsData); break;
+            case 'certifications': saveData('certificationsData', certificationsData); break;
+            case 'articles': saveData('articlesData', articlesData); break;
+        }
+    };
+
     const handleItemChange = (setter: Function, index: number, field: string, value: any, isDescription: boolean = false) => {
         setter((prev: any[]) => {
             const newList = [...prev];
@@ -307,7 +318,7 @@ const Admin: React.FC = () => {
                           };
                           actions[activeTab as keyof typeof actions]();
                         }} className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded transition-colors shadow-lg hover:shadow-green-600/20">+ Add Item</button>
-                        <button onClick={() => saveData(`${activeTab}Data` as DataKeys, eval(`${activeTab}Data`))} className="bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded transition-colors shadow-lg hover:shadow-cyan-500/20">Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</button>
+                        <button onClick={handleSaveCurrentTab} className="bg-cyan-500 hover:bg-cyan-600 font-bold py-2 px-4 rounded transition-colors shadow-lg hover:shadow-cyan-500/20">Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</button>
                       </div>
                   </div>
                 )}
